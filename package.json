@@ -16,9 +16,16 @@
       "output": "dist"
     },
     "files": [
-      "build/**/*",
-      "node_modules/**/*",
-      "package.json"
+      "main.js",
+      "index.html",
+      "preload.js",
+      "script.js",
+      "script-stretch.js",
+      "stretch.html",
+      "style.css",
+      "style-stretch.css",
+      "stretches.json",
+      "assets/**/*"
     ],
     "mac": {
       "target": "dmg"
