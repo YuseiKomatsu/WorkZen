@@ -1,8 +1,10 @@
 {
   "name": "focus-timer",
   "version": "3.0.0",
-  "author": "Yusei Komatsu",
-  "email": "your.email@example.com",
+  "author": {
+    "name": "Yusei Komatsu",
+    "email": "komatsu@eagle.sophia.ac.jp"
+  },
   "license": "ISC",
   "description": "A focus timer application using Electron",
   "main": "main.js",
