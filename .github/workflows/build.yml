@@ -19,6 +19,14 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Check file structure
+      run: ls -R
+      # これにより、ディレクトリ構造が正しいかどうかを確認できます
+
+    - name: Check main.js existence
+      run: ls -l main.js
+      # これにより、main.jsが存在するかどうかを確認できます
+
     - name: Build Electron App
       run: npm run build
 
