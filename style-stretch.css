@@ -1,0 +1,114 @@
+@font-face {
+    font-family: 'Plus Jakarta Sans', 'M PLUS 2';
+    font-weight: 300;
+    src:
+    url(/fonts/PlusJakartaSans-VariableFont_wght.ttf),
+    url(/fonts/MPLUS2-VariableFont_wght.ttf);
+}
+
+/* style-stretch.css */
+*{
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'M PLUS 2';
+    font-weight: 300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#stretch-container {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 24px;
+    padding: 24px;
+    background-color: #4949497e;
+    border: solid 1px #ffffff;
+    border-radius: 30px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    width: 430px;
+    height: 518px;
+}
+
+#stretch-image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+#stretch-image {
+    -webkit-app-region: drag;
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    background-color: #fff; /* 背景色を設定してスペースを目立たせる */
+  }
+
+#stretch-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+}
+
+#stretch-title {
+    font-size: 20px;
+    text-align: left;
+    font-weight: 500;
+}
+
+#stretch-description {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    text-align: left;
+    margin-bottom: 24px; /* ボタンとの間に一定の余白を設定 */
+}
+
+#text-wrapper{
+    width: 100%;
+    height: 120px; /* 固定高さ */
+    overflow: auto; /* 内容が多い場合にスクロール可能にする */
+}
+
+#stretch-description p {
+    font-size: 16px;
+}
+
+#button-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: auto; /* 上の要素が多い場合でもボタンが下に固定される */
+}
+
+button {
+    font-family: 'Plus Jakarta Sans', 'M PLUS 2';
+    width: 100px;
+    height: 40px; /* 高さは32px, 34px, 36pxなどから選択 */
+    font-size: 16px; /* 文字サイズは14px, 16pxなど */
+    padding: 0 calc((40px - 16px) / 2);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#done-button {
+    background-color: #80BB6B;
+    color: white;
+}
+
+#skip-button {
+    background-color: #B5B5B5;
+    color: white;
+}

@@ -1,0 +1,114 @@
+@font-face {
+    font-family: "Plus Jakarta Sans", 'M PLUS 2', sans-serif;
+    font-weight: 300;
+    src: url(/fonts/PlusJakartaSans-VariableFont_wght.ttf) format('truetype'),
+         url(/fonts/MPLUS2-VariableFont_wght.ttf) format('truetype');
+}
+
+/* style.css */
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+body {
+    width: 444px;
+    height: 220px;
+    font-weight: 200;
+    font-family: "Plus Jakarta Sans" ;
+    font-feature-settings: 'tnum'; /* タブラー数字を有効にする */
+    font-variant-numeric: tabular-nums; /* タブラー数字を有効にする */
+}
+
+#window {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    border-radius: 40px;
+    overflow: hidden;
+    color: #fff;
+    display: grid;
+    grid-template: 
+    "a a a a a a" 32px
+    "lt lt lt lt lt lt" 48px
+    "st st st st st st" 64px
+    "x stabt paubt stobt brebt y" 40px
+    "e e e e e e" 36px
+    /64px 104px 56px 56px 104px 64px;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.36);
+    /* background: rgba(255, 255, 255, 0.36); */    
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-sizing: border-box;
+}
+
+button {
+    padding: 0;
+    border: none;
+    outline: none;
+    font: inherit;
+    color: inherit;
+    background: none
+  }
+
+#timer-display {
+    grid-area: lt;
+    font-size: 48px;
+    margin: auto;
+}
+#timer-display-mini {
+    grid-area: st;
+    font-size: 20px;
+    margin: auto;
+}
+#start-timer{
+    grid-area: stabt;
+    background-color: #191919;
+    border-radius: 12px;
+    cursor: pointer;
+}
+#pause-timer{
+    grid-area: paubt;
+    cursor: pointer;
+    border: solid 1px #fff;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: block;
+    margin: auto 8px auto auto;
+}
+#stop-timer{
+    grid-area: stobt;
+    cursor: pointer;
+    border: solid 1px #fff;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: block;
+    margin: auto auto auto 8px;
+}
+
+#break-timer{
+    grid-area: brebt;
+    cursor: pointer;
+    background-color: #191919;
+    border-radius: 12px;
+}
+
+#drag{
+    -webkit-app-region: drag;
+    width: 100%;
+    grid-area: a;
+    background-color: #ffffff00;
+    display: block;
+    cursor: pointer;
+}
+
+#toggle-on-top{
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff00;
+    border-radius: 50%;
+    display: block;
+    cursor: pointer;
+}
