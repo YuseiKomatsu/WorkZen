@@ -1,14 +1,27 @@
 {
   "name": "focus-timer",
   "version": "3.0.0",
-  "description": "",
+  "author": "Yusei Komatsu",
+  "license": "ISC",
+  "description": "A focus timer application using Electron",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"
   },
-  "author": "Yusei Komatsu",
-  "license": "ISC",
+  "build": {
+    "appId": "com.example.focus-timer",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": ["AppImage", "snap"],
+      "category": "Utility"
+    }
+  },
   "devDependencies": {
     "electron": "^13.1.7",
     "electron-builder": "^22.14.13"
