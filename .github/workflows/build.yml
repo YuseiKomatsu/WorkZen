@@ -19,10 +19,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Build Electron App
+    - name: Build Electron App for Mac and Windows
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: npm run build
+      run: |
+        npm run build -- --mac --win
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
