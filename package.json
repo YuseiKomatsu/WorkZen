@@ -35,12 +35,6 @@
     },
     "win": {
       "target": "nsis"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
     }
   },
   "devDependencies": {
