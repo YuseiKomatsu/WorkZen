@@ -1,11 +1,21 @@
 name: Build Electron App
 
 on:
+  push:
+    branches:
+      - main  # プッシュがトリガーされるブランチを指定
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
 
     steps:
     - name: Checkout repository
@@ -19,11 +29,8 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Build Electron App for Mac and Windows
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        npm run build -- --mac --win
+    - name: Build Electron App
+      run: npm run build
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
