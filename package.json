@@ -1,7 +1,10 @@
 {
   "name": "focus-timer",
   "version": "3.0.0",
-  "author": "Yusei Komatsu",
+  "author": {
+    "name": "Yusei Komatsu",
+    "email": "komatsu@eagle.sophia.ac.jp"
+  },
   "license": "ISC",
   "description": "A focus timer application using Electron",
   "main": "main.js",
@@ -16,21 +19,22 @@
       "output": "dist"
     },
     "files": [
-      "build/**/*",
-      "node_modules/**/*",
-      "package.json"
+      "main.js",
+      "index.html",
+      "preload.js",
+      "script.js",
+      "script-stretch.js",
+      "stretch.html",
+      "style.css",
+      "style-stretch.css",
+      "stretches.json",
+      "assets/**/*"
     ],
     "mac": {
       "target": "dmg"
     },
     "win": {
       "target": "nsis"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
     }
   },
   "devDependencies": {
