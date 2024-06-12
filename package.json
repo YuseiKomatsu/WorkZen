@@ -1,71 +1,16 @@
 {
-  "name": "focustimer",
+  "name": "focus-timer",
   "version": "3.0.0",
-  "description": "A simple focus timer app",
+  "description": "",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "build": "electron-builder"
   },
-  "keywords": [],
   "author": "Yusei Komatsu",
   "license": "ISC",
-  "devDependencies": {
-    "electron": "^28.3.3",
-    "electron-builder": "^24.13.3",
-    "electron-packager": "^17.1.2",
-    "electron-reload": "^2.0.0-alpha.1"
-  },
-  "build": {
-    "files": [
-      "dist/**/*",
-      "fonts/**/*",
-      "main.js",
-      "preload.js",
-      "index.html",
-      "style.css",
-      "style-stretch.css",
-      "script.js",
-      "script-stretch.js"
-    ],
-    "asar": true,
-    "appId": "focustimer.app.id",
-    "productName": "FocusTimer",
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "category": "public.app-category.productivity"
-    },
-    "win": {
-      "target": [
-        "nsis",
-        "zip"
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    },
-    "directories": {
-      "output": "build"
-    },
-    "extraResources": [
-      {
-        "from": "./extras/",
-        "to": "extras",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ]
-  },
   "dependencies": {
-    "node-mp3-player": "^1.0.3",
-    "play": "^0.5.0",
-    "play-sound": "^1.1.6",
-    "sound": "^3.1.0"
+    "electron": "^13.1.7",
+    "electron-builder": "^22.11.7"
   }
 }
