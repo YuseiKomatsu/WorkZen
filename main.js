@@ -23,10 +23,10 @@ const firstStandingTimerDefault = 14 * 60; // 第一スタンディングタイ�
 const secondStandingTimerDefault = 33 * 60; // 第二スタンディングタイマー
 
 // // デバッグ用タイマー設定
-// const mainTimerDefault = 52; // デバッグ用メインタイマーの初期値
+// const mainTimerDefault = 50; // デバッグ用メインタイマーの初期値
 // const breakTimerDefault = 17; // デバッグ用ブレイクタイマーの初期値
 // const miniTimerDefault = 5; // デバッグ用ミニタイマーの初期値
-// const firstStandingTimerDefault = 14; // デバッグ用第一スタンディングタイマー
+// const firstStandingTimerDefault = 48; // デバッグ用第一スタンディングタイマー
 // const secondStandingTimerDefault = 33; // デバッグ用第二スタンディングタイマー
 
 let mainRemainingTime = mainTimerDefault; // メインタイマーの残り時間
