@@ -29,8 +29,8 @@
       "style.css",
       "style-stretch.css",
       "stretches.json",
-      "fonts",
-      "images"
+      "fonts/**/*",
+      "images/**/*"
     ],
     "mac": {
       "target": "dmg"
