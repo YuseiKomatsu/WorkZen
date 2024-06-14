@@ -64,6 +64,7 @@ function createMainWindow() {
     resizable: false,
     transparent: true,
     alwaysOnTop: false,
+    backgroundThrottling: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
