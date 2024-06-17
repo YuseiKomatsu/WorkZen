@@ -6,10 +6,24 @@ const stopButton = document.getElementById('stop-timer');
 const pauseButton = document.getElementById('pause-timer');
 const breakButton = document.getElementById('break-timer');
 
+function initializeTimerDisplay() {
+    // タイマーの変数を0に設定
+    const initialMainTime = 0;
+    const initialMiniTime = 0;
+
+    // 初期化されたタイマーの値を表示する
+    updateTimerDisplay(initialMainTime, initialMiniTime);
+}
+
+// DOMContentLoadedイベントでinitializeTimerDisplayを呼び出す
+document.addEventListener('DOMContentLoaded', (event) => {
+    initializeTimerDisplay();
+});
+
 // タイマー表示を更新する関数
 function updateTimerDisplay(mainTime, miniTime) {
-    mainDisplay.textContent = formatTime(mainTime);
-    miniDisplay.textContent = formatTime(miniTime);
+    mainDisplay.innerText = formatTime(mainTime);
+    miniDisplay.innerText = formatTime(miniTime);
 }
 
 // 秒数を MM:SS 形式の文字列に変換する関数

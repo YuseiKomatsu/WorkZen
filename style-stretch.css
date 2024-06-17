@@ -32,11 +32,15 @@ body, html {
     grid-template-rows: auto 1fr auto;
     gap: 24px;
     padding: 24px;
-    background-color: #4949497e;
-    border: solid 1px #ffffff;
+    background-color: rgba(28, 28, 28, 0.8); /* 半透明の黒 */
+    border: 2px solid #3C3C3C; /* ダークグレーのボーダー */
+    box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.6), /* ドロップシャドウ */
+    inset 0 -2px 4px rgba(46, 46, 46, 0.5), /* 内側のハイライト */
+    inset 0 4px 6px rgba(13, 13, 13, 0.8); /* 内側の影 */
     border-radius: 30px;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     width: 430px;
     height: 518px;
 }
@@ -104,11 +108,27 @@ button {
 }
 
 #done-button {
-    background-color: #80BB6B;
-    color: white;
+    background-color: #28A745;
+    border: 2px solid #28A745;
+    color: #FFFFFF;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.done-button:hover {
+    background-color: #218838;
+    box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.6), 0 3px 6px -2px rgba(0, 0, 0, 0.4);
+  }
+
 #skip-button {
-    background-color: #B5B5B5;
-    color: white;
+    background-color: #6C757D;
+    border: 2px solid #6C757D;
+    color: #FFFFFF;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#skip-button :hover{
+    background-color: #5A6268;
+    box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.6), 0 3px 6px -2px rgba(0, 0, 0, 0.4);
 }
