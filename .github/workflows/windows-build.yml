@@ -1,4 +1,4 @@
-name: Windows Build
+name: Windows Build and Release
 
 on:
   push:
@@ -7,30 +7,36 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-    - name: Set up environment variables
-      run: echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
+
     - name: Install dependencies
+      run: npm install
+
+    - name: Build the project
+      run: npm run build
+
+    - name: Bump version and push tag
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
-        echo "//registry.npmjs.org/:_authToken=${GH_TOKEN}" > ~/.npmrc
-        npm install
-    - name: Run build
-      run: npm run build
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
+        npm version patch
+        git push --follow-tags origin main
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
       with:
-        name: electron-build
-        path: dist/*
+        files: dist/*.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
