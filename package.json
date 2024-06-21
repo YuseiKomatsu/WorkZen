@@ -8,6 +8,10 @@
   "license": "ISC",
   "description": "A focus timer application using Electron",
   "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://${GH_TOKEN}@github.com/username/repository.git"
+  },
   "scripts": {
     "start": "electron .",
     "dev": "nodemon --exec electron .",
@@ -15,7 +19,7 @@
     "release": "node ./build.js"
   },
   "build": {
-    "appId": "com.example.app",
+    "appId": "com.focustimer.app",
     "productName": "Focus Timer",
     "directories": {
       "output": "dist"
