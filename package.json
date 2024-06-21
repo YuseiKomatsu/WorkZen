@@ -44,10 +44,11 @@
       "target": "nsis"
     },
     "publish": [
-    {
-      "provider": "github",
-      "token": "${GH_TOKEN}"
-    }
+      {
+        "provider": "github",
+        "token": "${GH_TOKEN}"
+      }
+    ]
   },
   "devDependencies": {
     "electron": "^13.6.9",
