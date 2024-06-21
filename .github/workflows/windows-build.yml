@@ -31,3 +31,4 @@ jobs:
       with:
         name: windows-app
         path: dist/*.exe
+        retention-days: 1  # 1日後にアーティファクトを自動削除
