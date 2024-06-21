@@ -42,6 +42,11 @@
     },
     "win": {
       "target": "nsis"
+    },
+    "publish": [
+    {
+      "provider": "github",
+      "token": "${GH_TOKEN}"
     }
   },
   "devDependencies": {
