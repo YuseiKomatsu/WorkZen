@@ -25,6 +25,20 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npm run build
+
+    - name: Bump version and push tag
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        npm version patch
+        git push --follow-tags origin main
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}        
       
     # - name: Upload artifacts
     #   uses: actions/upload-artifact@v3
