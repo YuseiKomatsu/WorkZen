@@ -41,15 +41,15 @@ jobs:
           echo "::set-output name=version_type::minor"
         fi
 
-    - name: Commit changes
-      run: |
-        git add .
-        git commit -m "Automated version bump" || echo "No changes to commit"
-
     - name: Configure Git
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Commit changes
+      run: |
+        git add .
+        git commit -m "Automated version bump" || echo "No changes to commit"
 
     - name: Bump version and push tag
       env:
