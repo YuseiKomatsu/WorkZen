@@ -1,6 +1,6 @@
 {
   "name": "focus-timer",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A focus timer application using Electron",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "name": "Yusei Komatsu",
     "email": "komatsu@eagle.sophia.ac.jp"
   },
-  "license": "MIT",
+  "license": "CC BY-NC-ND",
   "devDependencies": {
     "electron": "^21.0.0",
     "electron-builder": "^23.0.0"

@@ -26,11 +26,30 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npm run build
 
+    - name: Determine version bump
+      id: version-bump
+      run: |
+        if [[ "${{ github.event.pull_request.head.ref }}" == new-feature* ]]; then
+          echo "::set-output name=version_type::minor"
+        else
+          echo "::set-output name=version_type::patch"
+        fi
+
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
     - name: Bump version and push tag
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        npm version patch
+        if [ "${{ steps.version-bump.outputs.version_type }}" = "minor" ]; then
+          npm version minor --no-git-tag-version
+          npm version patch
+        else
+          npm version patch
+        fi
         git push --follow-tags origin main
 
     - name: Create Release
@@ -38,7 +57,7 @@ jobs:
       with:
         files: dist/*.exe
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}        
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
       
     # - name: Upload artifacts
     #   uses: actions/upload-artifact@v3
