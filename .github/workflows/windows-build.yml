@@ -56,6 +56,7 @@ jobs:
         git commit -m "Automated version bump" || echo "No changes to commit"
 
     - name: Bump version and push tag
+      if: github.event_name == 'pull_request'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -63,6 +64,7 @@ jobs:
         git push --follow-tags origin main
 
     - name: Create GitHub Release
+      if: github.event_name == 'pull_request'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ steps.version-bump.outputs.version_type }}
@@ -72,9 +74,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-    # - name: Upload artifacts
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: windows-app
-    #     path: dist/*.exe
-    #     retention-days: 1  # 1日後にアーティファクトを自動削除
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-app
+        path: dist/*.exe
+        retention-days: 1  # 1日後にアーティファクトを自動削除
