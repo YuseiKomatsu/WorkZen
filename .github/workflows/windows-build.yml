@@ -74,9 +74,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: windows-app
-        path: dist/*.exe
-        retention-days: 1  # 1日後にアーティファクトを自動削除
+    # - name: Upload artifacts
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: windows-app
+    #     path: dist/*.exe
+    #     retention-days: 1  # 1日後にアーティファクトを自動削除
