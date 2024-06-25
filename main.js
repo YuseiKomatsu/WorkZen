@@ -135,9 +135,6 @@ function startMainTimer() {
         clearTimeout(mainTimerId);
         console.log("メインタイマー終了");
         showNotification('Break time!', 'Time for a short break! Grab some water and refresh yourself.');
-        currentTimerType = "break";
-        mainRemainingTime = breakTimerDefault;
-        startMainTimer();
       }
       if (mainRemainingTime === 0 && currentTimerType === "break") {
         clearTimeout(mainTimerId);

@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win --publish never"
+    "build": "electron-builder --win"
   },
   "author": {
     "name": "Yusei Komatsu",
@@ -17,11 +17,28 @@
     "electron-builder": "^23.0.0"
   },
   "build": {
+    "files": [
+      "images/**/*",
+      "fonts/**/*",
+      "main.js",
+      "preload.js",
+      "index.html",
+      "stretch.html",
+      "style.css",
+      "style-stretch.css",
+      "script.js",
+      "script-stretch.js",
+      "stretches.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
     "appId": "com.yuseikomatsu.focustimer",
     "productName": "focustimer",
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "zip"
       ]
     },
     "publish": {
