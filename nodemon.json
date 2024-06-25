@@ -1,0 +1,5 @@
+{
+    "watch": ["main.js", "index.html", "preload.js", "script.js", "script-stretch.js", "stretch.html", "style.css", "style-stretch.css", "stretches.json"],
+    "ext": "js,html,css,json",
+    "exec": "electron ."
+  }
