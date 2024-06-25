@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win"
+    "build": "electron-builder --win",
+    "dev": "nodemon --exec electron ."
   },
   "author": {
     "name": "Yusei Komatsu",
@@ -14,7 +15,8 @@
   "license": "CC BY-NC-ND",
   "devDependencies": {
     "electron": "^21.0.0",
-    "electron-builder": "^23.0.0"
+    "electron-builder": "^23.0.0",
+    "nodemon": "^3.1.4"
   },
   "build": {
     "files": [
