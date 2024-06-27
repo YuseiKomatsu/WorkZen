@@ -6,7 +6,7 @@
             "鎖骨を抑えて首を上下に振る",
             "手を背中の後ろで組み、正面から左右に首を振る"
         ],
-        "image": "images/neck_stretch.webp"
+        "image": "assets/images/neck_stretch.webp"
     },
     {
         "title": "お尻のストレッチ",
@@ -14,6 +14,6 @@
             "座ったまま片方の足を反対側の膝の上にのせる",
             "息を吐きながら、ゆっくりと上体を前に倒す"
         ],
-        "image": "images/Rectangle1.png"
+        "image": "assets/images/Rectangle1.png"
     }
 ]

@@ -1,8 +1,8 @@
 @font-face {
     font-family: "Plus Jakarta Sans", 'M PLUS 2', sans-serif;
     font-weight: 300;
-    src: url(/fonts/PlusJakartaSans-VariableFont_wght.ttf) format('truetype'),
-         url(/fonts/MPLUS2-VariableFont_wght.ttf) format('truetype');
+    src: url(assets/fonts/PlusJakartaSans-VariableFont_wght.ttf) format('truetype'),
+         url(assets/fonts/MPLUS2-VariableFont_wght.ttf) format('truetype');
 }
 
 /* style.css */
@@ -40,6 +40,15 @@ body {
     border: 2px solid #3C3C3C;
     box-sizing: border-box;
 }
+
+ion-icon {
+    position: absolute;
+    z-index: 100;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: red;
+  }
 
 button {
     padding: 0;

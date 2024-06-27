@@ -75,7 +75,7 @@ function createMainWindow() {
   mainWindow.loadFile("index.html");
 
   // 開発者ツールを開く
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 function createStretchWindow() {
