@@ -26,7 +26,7 @@ const secondStandingTimerDefault = 33 * 60; // 第二スタンディングタイ
 // const mainTimerDefault = 50; // デバッグ用メインタイマーの初期値
 // const breakTimerDefault = 17; // デバッグ用ブレイクタイマーの初期値
 // const miniTimerDefault = 5; // デバッグ用ミニタイマーの初期値
-// const firstStandingTimerDefault = 48; // デバッグ用第一スタンディングタイマー
+// const firstStandingTimerDefault = 52 * 60 - 3; // デバッグ用第一スタンディングタイマー
 // const secondStandingTimerDefault = 33; // デバッグ用第二スタンディングタイマー
 
 let mainRemainingTime = mainTimerDefault; // メインタイマーの残り時間
@@ -48,9 +48,15 @@ function readStretchesFile() {
 }
 
 // 読み込んだデータを送信する関数
-ipcMain.handle('get-stretches', () => {
-    return readStretchesFile();
+ipcMain.handle('get-stretches', async () => {
+  try {
+      return readStretchesFile();
+  } catch (error) {
+      console.error('Failed to get stretches:', error);
+      return [];
+  }
 });
+
 
 function createMainWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
@@ -63,7 +69,7 @@ function createMainWindow() {
     frame: false,
     resizable: false,
     transparent: true,
-    alwaysOnTop: false,
+    alwaysOnTop: true,
     backgroundThrottling: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -75,7 +81,7 @@ function createMainWindow() {
   mainWindow.loadFile("index.html");
 
   // 開発者ツールを開く
-  mainWindow.webContents.openDevTools({ mode: 'detach' });
+  // mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 function createStretchWindow() {
@@ -98,7 +104,7 @@ function createStretchWindow() {
   stretchWindow.loadFile('stretch.html');
 
   // 開発者ツールを開く
-  // stretchWindow.webContents.openDevTools();
+  // stretchWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 function showNotification(title, body) {
@@ -201,21 +207,52 @@ ipcMain.on("pause-timer", () => {
     clearInterval(mainTimerId);
     clearInterval(miniTimerId);
     isPaused = true;
-    console.log("タイマーが一時停止されました。");
+    console.log("Timer paused.");
   } else {
     // タイマーが一時停止されている場合、タイマーを再開する
-    isPaused = false;
     if (currentTimerType === "main" || currentTimerType === "break") {
       startMainTimer();
     } else if (currentTimerType === "mini") {
       startMainTimer();
       startMiniTimer();
     }
-    console.log("タイマーが再開されました。");
+    isPaused = false;
+    console.log("Timer Resumed");
   }
   // フロントエンドにタイマーの状態を更新させるためのメッセージを送信する
   mainWindow.webContents.send("timer-paused", isPaused);
+  updatePauseButtonIcon(); // アイコンを更新
 });
+
+// アイコンを切り替える関数
+function updatePauseButtonIcon() {
+  mainWindow.webContents.executeJavaScript(`
+    try {
+      const pauseIcon = document.getElementById('pause-icon');
+      const playCircleIcon = document.getElementById('play-circle-icon');
+      if (!pauseIcon || !playCircleIcon) {
+        throw new Error('Required elements not found');
+      }
+      if (${isPaused}) {
+        console.log('Switching to play icon');
+        pauseIcon.style.display = 'none';
+        playCircleIcon.style.display = 'block';
+      } else {
+        console.log('Switching to pause icon');
+        pauseIcon.style.display = 'block';
+        playCircleIcon.style.display = 'none';
+      }
+      'JavaScript executed successfully.';
+    } catch (error) {
+      console.error('Error during icon switch:', error);
+      throw error;
+    }
+  `).then((result) => {
+    console.log(result);
+  }).catch((error) => {
+    console.error('Failed to execute JavaScript:', error);
+  });
+}
 
 ipcMain.on("stop-timer", () => {
   console.log("stop-timerのmain処理");
@@ -237,8 +274,12 @@ ipcMain.on('show-stretch', () => {
           console.error('Error reading stretches.json:', err);
           return;
       }
-      const stretches = JSON.parse(data);
-      stretchWindow.webContents.send('display-stretches', stretches);
+      try {
+          const stretches = JSON.parse(data);
+          stretchWindow.webContents.send('display-stretches', stretches);
+      } catch (parseError) {
+          console.error('Error parsing stretches.json:', parseError);
+      }
   });
 });
 

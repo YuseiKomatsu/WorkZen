@@ -7,14 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="window">
-    <div id="drag"></div>
-    <!-- <button id="toggle-on-top"></button> -->
+    <div id="main-wrapper">
+    <button id="drag"></button>
+    <button id="setting" class="btn3d">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><title>Prefarences</title><g fill="#ffffff" class="nc-icon-wrapper"><path d="M16.1 9.16h-5.63l-2.81-4.87a0.83 0.83 0 1 0-1.44 0.83l2.81 4.87-2.81 4.87a0.83 0.83 0 0 0 1.44 0.83l2.81-4.87h5.63a0.83 0.83 0 0 0 0-1.66z" fill="#ffffff" data-color="color-2"></path><path d="M18.04 9.16h-1.17a6.9 6.9 0 0 0-0.5-1.89l1.01-0.58a0.83 0.83 0 1 0-0.84-1.44l-1.01 0.58a6.97 6.97 0 0 0-1.38-1.38l0.59-1.01a0.83 0.83 0 0 0-1.45-0.83l-0.58 1a6.86 6.86 0 0 0-1.89-0.5v-1.17a0.83 0.83 0 0 0-1.66 0v1.17a6.9 6.9 0 0 0-1.89 0.5l-0.58-1.01a0.83 0.83 0 1 0-1.44 0.84l0.58 1.01a6.94 6.94 0 0 0-1.38 1.38l-1.01-0.58a0.83 0.83 0 1 0-0.83 1.44l1 0.58a6.9 6.9 0 0 0-0.5 1.89h-1.17a0.83 0.83 0 0 0 0 1.66h1.17c0.08 0.66 0.25 1.3 0.5 1.89l-1.01 0.58a0.83 0.83 0 1 0 0.84 1.44l1.01-0.58c0.39 0.52 0.86 0.99 1.38 1.38l-0.58 1.01a0.83 0.83 0 0 0 1.44 0.83l0.58-1a6.86 6.86 0 0 0 1.89 0.5v1.17a0.83 0.83 0 0 0 1.66 0v-1.17a6.9 6.9 0 0 0 1.89-0.5l0.58 1a0.83 0.83 0 1 0 1.44-0.83l-0.58-1.01a6.94 6.94 0 0 0 1.38-1.38l1.01 0.58a0.83 0.83 0 1 0 0.84-1.44l-1.01-0.58a6.9 6.9 0 0 0 0.5-1.89h1.17a0.83 0.83 0 0 0 0-1.66z m-8.05 6.1c-2.91 0-5.27-2.37-5.27-5.27s2.37-5.27 5.27-5.27 5.27 2.37 5.27 5.27-2.37 5.27-5.27 5.27z" fill="#ffffff"></path></g></svg>
+    </button>
     <div id="timer-display"></div>
     <div id="timer-display-mini"></div>
     <button id="start-timer" class="btn3d">Start</button>
-    <button id="pause-timer"></button>
-    <button id="stop-timer"></button>
+    <button id="pause-timer">
+      <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+        <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm-32 288h-32V176h32zm96 0h-32V176h32z"/>
+      </svg>
+      <svg id="play-circle-icon" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+        <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm74.77 217.3l-114.45 69.14a10.78 10.78 0 01-16.32-9.31V186.87a10.78 10.78 0 0116.32-9.31l114.45 69.14a10.89 10.89 0 010 18.6z"/>
+      </svg>
+    </button>
+    <button id="stop-timer">
+      <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+        <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm80 262.4a25.62 25.62 0 01-25.6 25.6H201.6a25.62 25.62 0 01-25.6-25.6V201.6a25.62 25.62 0 0125.6-25.6h108.8a25.62 25.62 0 0125.6 25.6z"/>
+      </svg>
+    </button>
     <button id="break-timer" class="btn3d">Break</button>
     </div>
     <script src="script.js"></script>

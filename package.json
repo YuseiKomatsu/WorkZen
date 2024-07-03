@@ -47,6 +47,7 @@
     }
   },
   "dependencies": {
-    "ionicons": "^7.4.0"
+    "ionicons": "^7.4.0",
+    "react-native-vector-icons": "^10.1.0"
   }
 }
