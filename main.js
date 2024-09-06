@@ -62,26 +62,28 @@ function createMainWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   mainWindow = new BrowserWindow({
-    width: 444,
-    height: 220,
-    x: width - 445,
-    y: height - 221,
+    width: 448,
+    height: 212,
+    x: width - 450,
+    y: height - 213,
+    useContentSize: true,
     frame: false,
     resizable: false,
     transparent: true,
-    alwaysOnTop: true,
+    alwaysOnTop: false,
     backgroundThrottling: false,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js')
     },
   });
 
   mainWindow.loadFile("index.html");
 
   // 開発者ツールを開く
-  // mainWindow.webContents.openDevTools({ mode: 'detach' });
+  mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 function createStretchWindow() {
