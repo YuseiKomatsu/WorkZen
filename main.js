@@ -70,7 +70,7 @@ function createMainWindow() {
     frame: false,
     resizable: false,
     transparent: true,
-    alwaysOnTop: false,
+    alwaysOnTop: true,
     backgroundThrottling: false,
     webPreferences: {
       nodeIntegration: false,
