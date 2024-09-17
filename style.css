@@ -16,8 +16,26 @@ body {
     font-variant-numeric: tabular-nums; /* タブラー数字を有効にする */
 }
 
-.hidden{
-    display: none!important;
+html {
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.tab-content:not(.hidden) {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s ease-in;
 }
 
 .disabled {
@@ -200,6 +218,7 @@ button {
 
 .content{
     grid-area: content;
+    overflow: hidden;
 }
 
 .nav-icons{
@@ -245,19 +264,23 @@ button {
   .tab.active {
     background-color: #4c4c4c;
   }
+
+  /* #basic-content{
+
+  } */
   
   .tab-content {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    height: calc(100% - 32px);
-  }
-  
-  .tab-content.active {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    height: calc(100% - 32px);
+  }
+  
+  .tab-content.active {
+    visibility: visible;
     opacity: 1;
   }
 

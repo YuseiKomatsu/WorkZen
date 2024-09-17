@@ -11,25 +11,67 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("blur", handleTimeBlur);
   });
 
-  // タブ切り替えの機能
-  const tabs = document.querySelectorAll(".tabbar > *");
-  const tabContents = document.querySelectorAll(".tab-content");
+// タブ切り替えの機能
+const tabs = document.querySelectorAll(".tabbar .tab");
+const tabContents = document.querySelectorAll(".tab-content");
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
+tabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    tabs.forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
 
-      const targetId = tab.textContent.trim().toLowerCase() + "-content";
-      tabContents.forEach((content) => {
+    const targetId = tab.getAttribute("data-tab");
+    console.log("Clicked tab:", tab.textContent, "Target ID:", targetId); // デバッグ用
+
+    tabContents.forEach((content) => {
+      if (content.id === targetId) {
+        content.classList.remove("hidden");
+        content.classList.add("active");
+        console.log("Activating:", content.id); // デバッグ用
+      } else {
+        content.classList.add("hidden");
         content.classList.remove("active");
-        if (content.id === targetId) {
-          content.classList.add("active");
-        }
-      });
+        console.log("Deactivating:", content.id); // デバッグ用
+      }
     });
   });
+});
 
+// setting-wrapper と main-wrapper の切り替え
+const settingsToggle = document.querySelector(".setting-toggle");
+const settingWrapper = document.getElementById("setting-wrapper");
+const mainWrapper = document.getElementById("main-wrapper");
+
+if (settingsToggle && settingWrapper && mainWrapper) {
+  settingsToggle.addEventListener("click", () => {
+    settingWrapper.classList.toggle("hidden");
+    mainWrapper.classList.toggle("hidden");
+  });
+}
+
+// 初期状態の設定
+const activeTab = document.querySelector(".tabbar .tab.active");
+if (activeTab) {
+  const activeContentId = activeTab.getAttribute("data-tab");
+  tabContents.forEach((content) => {
+    if (content.id === activeContentId) {
+      content.classList.remove("hidden");
+    } else {
+      content.classList.add("hidden");
+    }
+  });
+}
+
+// 初期状態のログ出力
+console.log("Initial tab states:");
+tabs.forEach(tab => console.log(tab.textContent, "active:", tab.classList.contains("active")));
+tabContents.forEach(content => console.log(content.id, "hidden:", content.classList.contains("hidden")));
+
+
+// 初期状態のログ出力
+console.log("Initial tab states:");
+tabs.forEach(tab => console.log(tab.textContent, "active:", tab.classList.contains("active")));
+tabContents.forEach(content => console.log(content.id, "active:", content.classList.contains("active")));
   // Interval Count の機能
   const decrementButton = document.querySelector(".number-input .decrement");
   const incrementButton = document.querySelector(".number-input .increment");
@@ -210,7 +252,10 @@ function updateIntervalList() {
     // 各インターバルの時間入力フィールドにイベントリスナーを追加
     [minutesInput, secondsInput].forEach(input => {
         input.addEventListener("input", handleIntervalTimeInput);
-    });
+        input.addEventListener("input", handleTimeInput);
+        // 初期値を設定
+        input.dataset.oldValue = input.value;
+      });
 
     remainingTime -= focusSessionTimeSeconds;
     const intervalStart = secondsToMinutesAndSeconds(remainingTime);
@@ -413,6 +458,10 @@ function updateIntervalList() {
     secondsInput.type = "text";
     secondsInput.classList.add("time-input", "seconds");
 
+    [minutesInput, secondsInput].forEach(input => {
+        input.addEventListener("input", handleIntervalTimeInput);
+      });  
+
     remainingTime -= focusSessionTimeSeconds;
     const intervalStart = secondsToMinutesAndSeconds(remainingTime);
 
@@ -437,3 +486,62 @@ function formatTime(seconds) {
   const remainingSeconds = seconds % 60;
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
+
+// handleIntervalTimeInput 関数を修正
+function handleIntervalTimeInput(e) {
+    if (isAutoCalcEnabled) {
+      const newValue = this.value;
+      const oldValue = this.dataset.oldValue || "";
+  
+      if (newValue !== oldValue) {
+        isAutoCalcEnabled = false;
+        const autoCalcSwitch = document.querySelector(
+          '.setting:nth-child(4) input[type="checkbox"]'
+        );
+        if (autoCalcSwitch) {
+          autoCalcSwitch.checked = false;
+        }
+        // すべてのインターバル時間入力フィールドを有効化
+        const allIntervalInputs = document.querySelectorAll('.interval-item .time-input');
+        allIntervalInputs.forEach(input => {
+          input.disabled = false;
+        });
+      }
+      
+      this.dataset.oldValue = newValue;
+    }
+  }
+  
+//   タブ切り替えのデバッグ用
+  tabContents.forEach((content) => {
+    if (content.id === targetId) {
+      content.classList.add("active");
+      content.style.opacity = "1";
+      content.style.visibility = "visible";
+      console.log("Activating:", content.id); // デバッグ用
+    } else {
+      content.classList.remove("active");
+      content.style.opacity = "0";
+      content.style.visibility = "hidden";
+      console.log("Deactivating:", content.id); // デバッグ用
+    }  
+  });
+
+  function showElement(element) {
+    element.style.visibility = 'visible';
+    element.style.opacity = '1';
+    element.style.transition = 'opacity 0.3s ease-in-out';
+    element.style.display = 'block'; // または適切な display 値
+  }
+  
+  function hideElement(element) {
+    element.style.visibility = 'hidden';
+    element.style.opacity = '0';
+    element.style.transition = 'opacity 0.3s ease-in-out';
+    // display: none は遅延させて適用
+    setTimeout(() => {
+      if (element.style.opacity === '0') {
+        element.style.display = 'none';
+      }
+    }, 300); // トランジションの時間と同じ
+  }
