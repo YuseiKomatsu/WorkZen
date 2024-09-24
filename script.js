@@ -6,19 +6,10 @@ const stopButton = document.getElementById('stop-timer');
 const pauseButton = document.getElementById('pause-timer');
 const breakButton = document.getElementById('break-timer');
 
+// 初期化関数
 function initializeTimerDisplay() {
-    // タイマーの変数を0に設定
-    const initialMainTime = 0;
-    const initialMiniTime = 0;
-
-    // 初期化されたタイマーの値を表示する
-    updateTimerDisplay(initialMainTime, initialMiniTime);
+    updateTimerDisplay(0, 0);
 }
-
-// DOMContentLoadedイベントでinitializeTimerDisplayを呼び出す
-document.addEventListener('DOMContentLoaded', (event) => {
-    initializeTimerDisplay();
-});
 
 // タイマー表示を更新する関数
 function updateTimerDisplay(mainTime, miniTime) {
@@ -43,25 +34,50 @@ window.electronAPI.showNotification((event, title, message) => {
     new Notification(title, { body: message });
 });
 
-// スタートボタンのクリックイベントリスナー
+// ボタンのクリックイベントリスナー
 startButton.addEventListener('click', () => {
-    window.electronAPI.startTimer();
+    console.log('Start button clicked');
+    window.electronAPI.startMainTimer();
 });
 
-// ストップボタンのクリックイベントリスナー
 stopButton.addEventListener('click', () => {
+    console.log('Stop button clicked');
     window.electronAPI.stopTimer();
 });
 
-// ポーズボタンのクリックイベントリスナー
 pauseButton.addEventListener('click', () => {
+    console.log('Pause button clicked');
     window.electronAPI.pauseTimer();
 });
 
-// ブレイクボタンのクリックイベントリスナー
 breakButton.addEventListener('click', () => {
+    console.log('Break button clicked');
     window.electronAPI.startBreakTimer();
 });
 
+// タイマーの一時停止状態を監視
+window.electronAPI.onTimerPaused((event, isPaused) => {
+    console.log('Timer paused state:', isPaused);
+    // ここでUIの更新を行う（例：ボタンの表示を切り替えるなど）
+});
+
+// ストレッチデータの取得
+async function fetchStretches() {
+    try {
+        const stretches = await window.electronAPI.getStretches();
+        console.log('Fetched stretches:', stretches);
+        // ここでストレッチデータを使用してUIを更新する
+    } catch (error) {
+        console.error('Error fetching stretches:', error);
+    }
+}
+
 // 初期化
-document.addEventListener('DOMContentLoaded', fetchStretches);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded');
+    initializeTimerDisplay();
+    fetchStretches();
+});
+
+// デバッグ用
+console.log('script.js loaded');

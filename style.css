@@ -1,19 +1,26 @@
+/* フォント設定 */
 @font-face {
-    font-family: "Plus Jakarta Sans", 'M PLUS 2', sans-serif;
-    font-weight: 300;
-    src: url(assets/fonts/PlusJakartaSans-VariableFont_wght.ttf) format('truetype'),
-         url(assets/fonts/MPLUS2-VariableFont_wght.ttf) format('truetype');
+  font-family: "Plus Jakarta Sans", 'M PLUS 2', sans-serif;
+  font-weight: 300;
+  src: url(assets/fonts/PlusJakartaSans-VariableFont_wght.ttf) format('truetype'),
+       url(assets/fonts/MPLUS2-VariableFont_wght.ttf) format('truetype');
 }
 
-/* style.css */
-html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+/* 基本スタイル */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-    width: 448px;
-    height: 208px;
-    font-weight: 200;
-    font-family: "Plus Jakarta Sans" ;
-    font-feature-settings: 'tnum'; /* タブラー数字を有効にする */
-    font-variant-numeric: tabular-nums; /* タブラー数字を有効にする */
+  width: 448px;
+  height: 208px;
+  font-weight: 200;
+  font-family: "Plus Jakarta Sans";
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
 }
 
 html {
@@ -24,11 +31,275 @@ html {
   box-sizing: inherit;
 }
 
+/* ユーティリティクラス */
 .hidden {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* アプリ全体のスタイル */
+#app {
+  color: #fff;
+  background-color: #1c1c1ccc;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid #3C3C3C;
+  box-sizing: border-box;
+  border-radius: 32px;
+  overflow: hidden;
+}
+
+/* メインラッパー */
+#main-wrapper {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  overflow: hidden;
+  display: grid;
+  grid-template: 
+      "drag drag drag drag drag drag" 28px
+      "lt lt lt lt lt lt" 48px
+      "st st st st st st" 64px
+      "x stabt paubt stobt brebt y" 40px
+      "e e e e e e" 28px
+      /64px 104px 56px 56px 104px 64px;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+/* ボタン共通スタイル */
+button {
+  padding: 0;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  background: none;
+}
+
+/* 設定トグル */
+.setting-toggle {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; 
+  height: 32px;
+  cursor: pointer;
+  border-radius: 50%!important;
+  box-shadow: none;
+}
+
+.setting-toggle svg {
+  margin: auto;
+}
+
+/* タイマー表示 */
+#timer-display {
+  grid-area: lt;
+  font-size: 48px;
+  margin: auto;
+}
+
+#timer-display-mini {
+  grid-area: st;
+  font-size: 20px;
+  margin: auto;
+}
+
+/* タイマーボタン */
+#start-timer {
+  grid-area: stabt;
+}
+
+#break-timer {
+  grid-area: brebt;
+}
+
+.btn3d {
+  cursor: pointer;
+  border-radius: 12px;
+  background-color: #1C1C1C;
+  border: 2px solid #3C3C3C;
+  color: #FFFFFF;
+  box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.6), 
+      0 2px 4px -1px rgba(0, 0, 0, 0.4);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn3d:hover {
+  background-color: #2E2E2E;
+  box-shadow: 
+      0 6px 8px -2px rgba(0, 0, 0, 0.6), 
+      0 3px 6px -2px rgba(0, 0, 0, 0.4);
+}
+
+.btn3d:active {
+  background-color: #0D0D0D;
+  box-shadow: 
+      0 2px 4px -1px rgba(0, 0, 0, 0.6), 
+      0 1px 2px -1px rgba(0, 0, 0, 0.4);
+}
+
+#pause-timer {
+  grid-area: paubt;
+  cursor: pointer;
+  border: solid 1px #fff;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: block;
+  margin: auto 8px auto auto;
+}
+
+#pause-timer svg, #stop-timer svg {
+  fill: #fff;
+}
+
+#pause-icon {
+  display: block;
+}
+
+#play-circle-icon {
+  display: none;
+}
+
+#stop-timer {
+  grid-area: stobt;
+  cursor: pointer;
+  border: solid 1px #fff;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: block;
+  margin: auto auto auto 8px;
+}
+
+/* ドラッグ領域 */
+.drag {
+  -webkit-app-region: drag;
+  width: 100%;
+  height: 100%;
+  grid-area: drag;
+  display: block;
+  cursor: grab;
+}
+
+.drag:hover {
+  background-color: #2c2c2c;
+}
+
+/* その他の要素 */
+#toggle-on-top {
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff00;
+  border-radius: 50%;
+  display: block;
+  cursor: pointer;
+}
+
+/* 設定ラッパー */
+#setting-wrapper {
+  width: 100%;
+  display: grid;
+  grid-template: 
+      "drag drag drag" 16px
+      "navleft content navright" 176px
+      "pad-b pad-b pad-b" 16px
+      /64px 1fr 64px;
+  overflow: hidden;
+}
+
+/* ナビゲーションバー */
+.navbar {
+  width: 100%;
+  grid-area: navleft;
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-icons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: auto;
+  width: 100%;
+}
+
+.nav-button {
+  width: fit-content;
+  cursor: pointer;
+  transition: opacity 0.3s ease, color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #6C757D;
+}
+
+.nav-button:hover {
+  opacity: 0.8;
+}
+
+.nav-button.active {
+  color: #FFFFFF;
+}
+
+.button-icon {
+  width: 20px;
+}
+
+/* タブバー */
+.tabbar {
+  width: 320px;
+  display: flex;
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 32px;
+  border: solid 1px #4c4c4c;
+}
+
+.tab {
+  flex: 1;
+  margin: 4px;
+  border-radius: 4px;
+  border: none;
+  background: none;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.tab.active {
+  background-color: #4c4c4c;
+}
+
+/* タブコンテンツ */
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  height: calc(100% - 32px);
+}
+
+.tab-content.active {
+  visibility: visible;
+  opacity: 1;
 }
 
 .tab-content:not(.hidden) {
@@ -38,265 +309,26 @@ html {
   transition: opacity 0.5s ease-in;
 }
 
-.disabled {
-  opacity: 0.5;
-  pointer-events: none;
+#basic-content, #intervals-content {
+  width: 100%;
 }
 
-#app{
-    color: #fff;
-    background-color: #1c1c1ccc;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 2px solid #3C3C3C;
-    box-sizing: border-box;
-    border-radius: 32px;
-    overflow: hidden;
+/* 時間設定コンテナ */
+.time-settings-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
 }
 
-#main-wrapper {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    overflow: hidden;
-    display: grid;
-    grid-template: 
-    "drag drag drag drag drag drag" 28px
-    "lt lt lt lt lt lt" 48px
-    "st st st st st st" 64px
-    "x stabt paubt stobt brebt y" 40px
-    "e e e e e e" 28px
-    /64px 104px 56px 56px 104px 64px;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
-}
-
-button {
-    padding: 0;
-    border: none;
-    outline: none;
-    font: inherit;
-    color: inherit;
-    background: none;
-  }
-
-.setting-toggle{
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px; 
-    height: 32px;
-    cursor: pointer;
-    border-radius: 50%!important;
-    box-shadow: none;
-}
-
-.setting-toggle svg{
-    margin: auto;
-}
-
-#timer-display {
-    grid-area: lt;
-    font-size: 48px;
-    margin: auto;
-}
-#timer-display-mini {
-    grid-area: st;
-    font-size: 20px;
-    margin: auto;
-}
-#start-timer{
-    grid-area: stabt;
-}
-
-#break-timer{
-    grid-area: brebt;
-}
-
-.btn3d{
-    cursor: pointer;
-    border-radius: 12px;
-    background-color: #1C1C1C;
-    border: 2px solid #3C3C3C;
-    color: #FFFFFF;
-    box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.6), 
-    0 2px 4px -1px rgba(0, 0, 0, 0.4);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.btn3d:hover {
-    background-color: #2E2E2E;
-    box-shadow: 
-      0 6px 8px -2px rgba(0, 0, 0, 0.6), 
-      0 3px 6px -2px rgba(0, 0, 0, 0.4);
- }
-  
-.btn3d:active {
-    background-color: #0D0D0D;
-    box-shadow: 
-      0 2px 4px -1px rgba(0, 0, 0, 0.6), 
-      0 1px 2px -1px rgba(0, 0, 0, 0.4);
-}
-
-#pause-timer{
-    grid-area: paubt;
-    cursor: pointer;
-    border: solid 1px #fff;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: block;
-    margin: auto 8px auto auto;
-}
-
-/* button svg{
-    fill: #fff;
-} */
-
-#pause-icon{
-    display: block;
-}
-
-#play-circle-icon{
-    display: none;
-}
-
-#stop-timer{
-    grid-area: stobt;
-    cursor: pointer;
-    border: solid 1px #fff;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: block;
-    margin: auto auto auto 8px;
-}
-
-.drag{
-    -webkit-app-region: drag;
-    width: 100%;
-    height: 100%;
-    grid-area: drag;
-    display: block;
-    cursor:grab;
-}
-
-.drag:hover{
-    background-color: #2c2c2c;
-}
-
-#toggle-on-top{
-    width: 20px;
-    height: 20px;
-    background-color: #ffffff00;
-    border-radius: 50%;
-    display: block;
-    cursor: pointer;
-}
-
-#setting-wrapper{
-    width: 100%;
-    display: grid;
-    grid-template: 
-    "drag drag drag" 16px
-    "navleft content navright" 176px
-    "pad-b pad-b pad-b" 16px
-    /64px 1fr 64px;
-    overflow: hidden;
-}
-
-.navbar{
-    width: 100%;
-    grid-area: navleft;
-    display: flex;
-    justify-content: space-between;
-}
-
-.content{
-    grid-area: content;
-    overflow: hidden;
-}
-
-.nav-icons{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    margin: auto;
-    width: 100%;
-}
-
-.nav-button{
+.time-setting {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
   width: fit-content;
-  cursor: pointer;
 }
 
-.button-icon{
-  stroke: #FFF;
-  width: 20px;
-}
-  
-.tabbar {
-    width: 100%;
-    display: flex;
-    background-color: #2c2c2c;
-    border-radius: 8px;
-    overflow: hidden;
-    height: 32px;
-    border: solid 1px #4c4c4c;
-  }
-  
-  .tab {
-    flex: 1;
-    margin: 4px;
-    border-radius: 4px;
-    border: none;
-    background: none;
-    color: white;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  
-  .tab.active {
-    background-color: #4c4c4c;
-  }
-
-  /* #basic-content{
-
-  } */
-  
-  .tab-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    height: calc(100% - 32px);
-  }
-  
-  .tab-content.active {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  #basic-content, #intervals-content {
-    width: 100%;
-  }
-  
-  .time-setting {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin: 16px;
-    width: fit-content;
-  }
-
-  /* 活性状態のスタイル */
 .time-setting.active::before {
   content: '';
   position: absolute;
@@ -304,218 +336,314 @@ button {
   left: -4px;
   right: -4px;
   bottom: -4px;
-  background-color: rgba(255, 255, 255, 0.1); /* 活性状態の背景色 */
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   z-index: -1;
 }
 
-  .time-input-container {
-    /* display: flex; */
-    align-items: center;
-    font-size: 24px;
-    background-color: #333;
-    border-radius: 5px;
-    padding: 5px;
-    width: fit-content;
-  }
-
-  .time-label{
-    width: 96px;
-    margin-right: 8px;
-  }
-  
-  .time-input {
-    font-size: 32px;
-    background-color: transparent;
-    border: none;
-    color: #fff;
-    padding: 2px;
-    width: 40px;
-    text-align: center;
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-    appearance: none;
-  }
-
-  /* 活性状態のスタイル */
-/* .time-input:focus {
-  background-color: #FFFFFF;
-  color: #1C1C1C;
-  outline: none;
-  border-radius: 3px;
-} */
-
-/* オプション: フォーカス時のコンテナスタイル */ /* フォーカス時の周囲のグロー効果 */
-/* .time-input-container:focus-within {
-  box-shadow: 0 0 0 2px rgba(0, 119, 190, 0.5); 
-} */
-
-
-  .time-separator{
-    font-size: 32px;
-  }
-  
-  .time-input:focus {
-    outline: none;
-    /* border-bottom: 2px solid #2196F3; */
-  }
-
-  #intervals-content{
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-    padding: 0 8px;
-    max-width: 100%;
-  }
-
-  .intervals-content-container{
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    gap: 16px;
-  }
-
-  .intervals-list-container{
-    width: 125px;
-    max-height: 80%;
-    display: block;
-    overflow-y: scroll;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    
-  }
-
-  .intervals-list-container::-webkit-scrollbar {
-    display:none;
-   }
-
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 32px!important;
-    height: 16px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #6C757D;
-    transition: .4s;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 2px;
-    bottom: 1px;
-    background-color: #1C1C1C;
-    transition: .4s;
-  }
-  
-  input:checked + .slider {
-    background-color: #FFFFFF;
-  }
-  
-  input:focus + .slider {
-    box-shadow: 0 0 1px #FFFFFF;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(14px);
-  }
-  
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: 34px;
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
-  
-  .setting {
-    flex: 1 1 auto;
-    height: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .setting label{
-    width: 92px;
-    font-size: 12px;
-  }
-
-  label.auto-calc{
-    font-size: 10px;
-  }
-  
-  .toggle-label {
-    margin-right: 10px;
-  }
-
-  .number-input {
-    display: flex;
-    align-items: center;
-  }
-  
-  .number-input button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
-  #interval-count-display {
-    margin: 0 4px;
-    text-align: center;
-  }
-
-  .interval-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px 0;
-  }
-  
-  .interval-time {
-    width: 60px; /* サイズは適宜調整してください */
-  }
-  
-  /* テキストボックスのスタイルをBasicのタイマー設定部分と合わせる */
-  .interval-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    font-size: 12px;
+.time-input-container {
+  align-items: center;
+  font-size: 24px;
+  background-color: #333;
+  border-radius: 5px;
+  padding: 5px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* サイズを縮小しないように */
 }
 
-.interval-list .time-input-container, .interval-time-input-container {
-    font-size: 16px;
-    border-radius: 4px;
-    padding: 2px;
-    width: fit-content;
+.time-label {
+  width: 96px;
+  margin-right: 8px;
 }
 
-.interval-list .time-input, .interval-time-input {
-    font-size: 16px;
-    padding: 1px;
-    width: 20px;
+.time-input {
+  font-size: 32px;
+  background-color: transparent;
+  border: none;
+  color: #fff;
+  padding: 2px;
+  width: 40px;
+  text-align: center;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
 }
 
 .time-separator {
-    font-size: 16px;
-    margin: 0 1px;
+  font-size: 32px;
 }
+
+.time-input:focus {
+  outline: none;
+}
+
+/* インターバルコンテンツ */
+#intervals-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  padding: 0 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.settings-container{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: fit-content;
+  height: 100%;
+}
+
+.intervals-list-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: fit-content;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.intervals-list-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* スイッチ */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 32px!important;
+  height: 16px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #6C757D;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 1px;
+  background-color: #1C1C1C;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #FFFFFF;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #FFFFFF;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* 設定項目 */
+.setting {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 16px;
+  flex-wrap: nowrap;
+}
+
+.setting label {
+  width: 92px;
+  font-size: 12px;
+}
+
+label.auto-calc {
+  font-size: 10px;
+}
+
+.toggle-label {
+  margin-right: 10px;
+}
+
+/* 数値入力 */
+.number-input {
+  display: flex;
+  align-items: center;
+}
+
+.number-input button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#interval-count-display {
+  margin: 0 4px;
+  text-align: center;
+}
+
+/* インターバルアイテム */
+
+.interval-time {
+  width: 60px;
+}
+
+.interval-list{
+  overflow-y: auto; /* 必要に応じてスクロール可能に */
+  scrollbar-width: none; /* Firefox用 */
+  -ms-overflow-style: none; /* IE/Edge用 */
+  max-height: 100%; /* 最大高さを親要素に合わせる */
+  flex-grow: 1; /* 利用可能なスペースを埋める */
+}
+
+/* Webkit（Chrome, Safari等）用のスクロールバー非表示 */
+#interval-list::-webkit-scrollbar {
+  display: none;
+}
+
+.interval-list .setting{
+  height: 24px;
+}
+
+.interval-list .time-input-container, .interval-time-input-container {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  border-radius: 4px;
+  padding: 2px;
+  width: fit-content;
+}
+
+.interval-list .time-input-container .time-separator, 
+.interval-time-input-container .time-separator{
+  font-size: 16px;
+}
+
+.interval-list .time-input, .interval-time-input {
+  font-size: 16px;
+  padding: 1px;
+  width: 20px;
+}
+
+/* タイマー設定 */
+#timer-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: fit-content;
+  height: fit-content;
+}
+
+/* ウィンドウ設定 */
+#window-settings {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#window-settings .settings-container {
+  flex: none;
+  width: fit-content;
+  height: fit-content;
+}
+
+/* カスタムセレクト */
+.custom-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100px;
+}
+
+/* カスタムセレクト（続き） */
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  background-color: #1C1C1C;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+}
+
+.custom-select:focus {
+  outline: none;
+}
+
+.custom-select:hover {
+  background-color: #2C2C2C;
+}
+
+.custom-select:active {
+  background-color: #0D0D0D;
+}
+
+.custom-select option {
+  background-color: #1C1C1C;
+  color: white;
+  text-align: center;
+}
+
+/* SVGアイコン */
+.select-icon {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.select-icon svg {
+  display: block;
+  width: 100%;
+}
+
+/* メディアクエリ（必要に応じて） */
+@media (max-width: 768px) {
+  /* モバイル用のスタイル調整をここに追加 */
+}
+
+/* アニメーション（必要に応じて） */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* その他の追加スタイル（必要に応じて） */
