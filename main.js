@@ -1,7 +1,19 @@
 const { app, BrowserWindow, ipcMain, Notification, screen } = require('electron');
-const fs = require('fs');
-const path = require("path");
-const stretchesFilePath = path.join(__dirname, 'stretches.json');
+const path = require('path');
+const Store = require('electron-store');
+
+const store = new Store();
+
+// 設定のデフォルト値
+const defaultSettings = {
+  focusTime: 52 * 60,
+  breakTime: 17 * 60,
+  intervalTime: 5 * 60,
+  intervalsEnabled: false,
+  intervalCount: 2,
+  isAutoCalcEnabled: true,
+  intervalTimes: []
+};
 
 // 開発環境での自動リロード設定
 if (process.env.NODE_ENV === 'development') {
@@ -24,13 +36,16 @@ let mainRemainingTime = mainTimerDefault;
 let miniRemainingTime = miniTimerDefault;
 let currentTimerType = "main";
 let isPaused = false;
+let isTimerRunning = false;
+let pausedMainRemainingTime = 0;
+let pausedMiniRemainingTime = 0;
 
 // インターバル設定
 let intervalsEnabled = false;
 let intervalCount = 2;
 let intervalTimes = [];
 
-// ウィンドウ作成関数
+// メインウィンドウの作成
 function createMainWindow() {
   if (mainWindow === null) {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
@@ -63,12 +78,15 @@ function createMainWindow() {
       mainWindow = null;
     });
 
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
+    if (process.env.NODE_ENV === 'development') {
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+    }
   } else {
     mainWindow.focus();
   }
 }
 
+// ストレッチウィンドウの作成
 function createStretchWindow() {
   stretchWindow = new BrowserWindow({
     width: 430,
@@ -89,66 +107,112 @@ function createStretchWindow() {
   stretchWindow.loadFile('stretch.html');
 }
 
+// タイマー表示の更新
 function updateTimerDisplay() {
   if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log('Updating timer display:', mainRemainingTime, miniRemainingTime);
     mainWindow.webContents.send("update-timer", {
       mainRemainingTime,
-      miniRemainingTime: intervalTimeDefault
+      miniRemainingTime
     });
   } else {
     console.log('Main window is not available for updating timer display');
   }
 }
 
+// メインタイマーの開始
 function startMainTimer() {
   clearInterval(mainTimerId);
   console.log(`Starting main timer. intervalsEnabled: ${intervalsEnabled}, intervalCount: ${intervalCount}`);
   console.log(`Interval times: ${JSON.stringify(intervalTimes)}`);
   
   mainTimerId = setInterval(() => {
-    if (isPaused) return;
-    if (mainRemainingTime > 0) {
-      mainRemainingTime--;
-      
-      if (intervalsEnabled && currentTimerType === "main") {
-        console.log(`Current remaining time: ${mainRemainingTime}`);
+    if (!isPaused) {
+      if (mainRemainingTime > 0) {
+        mainRemainingTime--;
         
-        const matchingIntervalIndex = intervalTimes.findIndex(time => time === mainRemainingTime);
-        if (matchingIntervalIndex !== -1) {
-          console.log(`Interval match found for interval ${matchingIntervalIndex + 1}`);
-          startMiniTimer();
-          showNotification('Stand Up!', 'Let\'s get up and stretch! Keep your energy flowing!');
-          createStretchWindow();
+        if (intervalsEnabled && currentTimerType === "main" && Array.isArray(intervalTimes)) {
+          console.log(`Current remaining time: ${mainRemainingTime}`);
+          
+          const matchingIntervalIndex = intervalTimes.findIndex(time => time === mainRemainingTime);
+          if (matchingIntervalIndex !== -1) {
+            console.log(`Interval match found for interval ${matchingIntervalIndex + 1}`);
+            startMiniTimer();
+            showNotification('Stand Up!', 'Let\'s get up and stretch! Keep your energy flowing!');
+            createStretchWindow();
+          }
+        }
+        
+        if (mainRemainingTime === 0) {
+          handleTimerCompletion();
         }
       }
-      
-      if (mainRemainingTime === 0) {
-        handleTimerCompletion();
-      }
+      updateTimerDisplay();
     }
-    updateTimerDisplay();
   }, 1000);
+  isTimerRunning = true;
+  updatePauseResumeButton();
 }
 
+// ミニタイマーの開始
 function startMiniTimer() {
   currentTimerType = "mini";
-  miniRemainingTime = miniTimerDefault;
+  if (miniRemainingTime === 0) {
+    miniRemainingTime = miniTimerDefault;
+  }
   clearInterval(miniTimerId);
   miniTimerId = setInterval(() => {
-    if (isPaused) return;
-    if (miniRemainingTime > 0) {
-      miniRemainingTime--;
-      if (miniRemainingTime === 0) {
-        console.log("ミニタイマー終了");
-        showNotification('Back to focus!', 'Mini break is over. Let\'s get back to work!');
-        currentTimerType = "main";
-        clearInterval(miniTimerId);
+    if (!isPaused) {
+      if (miniRemainingTime > 0) {
+        miniRemainingTime--;
+        if (miniRemainingTime === 0) {
+          console.log("ミニタイマー終了");
+          showNotification('Back to focus!', 'Mini break is over. Let\'s get back to work!');
+          currentTimerType = "main";
+          clearInterval(miniTimerId);
+        }
       }
+      updateTimerDisplay();
     }
-    updateTimerDisplay();
   }, 1000);
+  isTimerRunning = true;
+  updatePauseResumeButton();
 }
 
+function stopTimer() {
+  clearInterval(mainTimerId);
+  clearInterval(miniTimerId);
+  isTimerRunning = false;
+  isPaused = false;
+  mainRemainingTime = mainTimerDefault;
+  miniRemainingTime = miniTimerDefault;
+  currentTimerType = "main";
+  updateTimerDisplay();
+  updatePauseResumeButton();
+}
+
+function pauseResumeTimer() {
+  isPaused = !isPaused;
+  if (isPaused) {
+    clearInterval(mainTimerId);
+    clearInterval(miniTimerId);
+  } else {
+    if (currentTimerType === "main" || currentTimerType === "break") {
+      startMainTimer();
+    } else if (currentTimerType === "mini") {
+      startMiniTimer();
+    }
+  }
+  updatePauseResumeButton();
+}
+
+function updatePauseResumeButton() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update-pause-resume-button", isPaused, isTimerRunning);
+  }
+}
+
+// タイマー完了時の処理
 function handleTimerCompletion() {
   if (currentTimerType === "main") {
     console.log("メインタイマー終了");
@@ -160,11 +224,12 @@ function handleTimerCompletion() {
   clearInterval(mainTimerId);
 }
 
-// ヘルパー関数
+// 通知の表示
 function showNotification(title, body) {
   new Notification({ title, body }).show();
 }
 
+// 一時停止ボタンのアイコン更新
 function updatePauseButtonIcon() {
   mainWindow.webContents.executeJavaScript(`
     try {
@@ -194,34 +259,67 @@ function updatePauseButtonIcon() {
   });
 }
 
-// ファイル読み込み関数
+// ストレッチファイルの読み込み
 function readStretchesFile() {
   try {
-    const data = fs.readFileSync(stretchesFilePath, 'utf-8');
-    console.log('File data:', data);
-    return JSON.parse(data);
+    const stretches = store.get('stretches');
+    console.log('Stretches data:', stretches);
+    return stretches || [];
   } catch (error) {
-    console.error('Error reading stretches file:', error);
+    console.error('Error reading stretches:', error);
     return [];
   }
 }
 
-// 設定関連関数
+// 設定の読み込み
 function loadSettings() {
-  // TODO: 実際の設定読み込みロジックを実装する
-  // この例では、ハードコードされた値を使用しています
-  console.log('Loading settings');
-  // 設定からIntervalTimeを読み込む（実際の実装ではファイルやデータベースから読み込む）
-  intervalTimeDefault = 5 * 60; // 例: 5分
-  miniRemainingTime = intervalTimeDefault;
+  const settings = store.get('settings', defaultSettings);
+  
+  mainTimerDefault = settings.focusTime;
+  breakTimerDefault = settings.breakTime;
+  miniTimerDefault = settings.intervalTime;
+  intervalsEnabled = settings.intervalsEnabled;
+  intervalCount = settings.intervalCount;
+  isAutoCalcEnabled = settings.isAutoCalcEnabled;
+  intervalTimes = settings.intervalTimes || []; // デフォルト値を空の配列に設定
+
+  mainRemainingTime = mainTimerDefault;
+  miniRemainingTime = miniTimerDefault;
+
+  updateTimerDisplay();
 }
 
-function saveSettings() {
-  // TODO: Implement saving settings to storage
-  console.log('Saving settings:', { intervalsEnabled, intervalCount, intervalTimes });
+// 設定の保存
+function saveSettings(settings) {
+  store.set('settings', settings);
+  console.log('Settings saved successfully.');
+  
+  // 保存された設定を反映するが、現在のタイマー値は変更しない
+  loadSettingsWithoutResettingTimer();
 }
 
-// IPC ハンドラー
+// 新しい関数: タイマーをリセットせずに設定を読み込む
+function loadSettingsWithoutResettingTimer() {
+  const settings = store.get('settings', defaultSettings);
+  
+  mainTimerDefault = settings.focusTime;
+  breakTimerDefault = settings.breakTime;
+  miniTimerDefault = settings.intervalTime;
+  intervalsEnabled = settings.intervalsEnabled;
+  intervalCount = settings.intervalCount;
+  isAutoCalcEnabled = settings.isAutoCalcEnabled;
+  intervalTimes = settings.intervalTimes || [];
+
+  // タイマーの現在値は変更しない
+  
+  updateTimerDisplay();
+}
+
+// IPC ハンドラーの設定
+ipcMain.handle('get-current-settings', () => {
+  return store.get('settings', defaultSettings);
+});
+
 ipcMain.handle('get-stretches', async () => {
   try {
     return readStretchesFile();
@@ -253,23 +351,32 @@ ipcMain.on("start-break-timer", () => {
   startMainTimer();
 });
 
+// pause-timer イベントハンドラーを修正
 ipcMain.on("pause-timer", () => {
   isPaused = !isPaused;
   if (isPaused) {
+    // タイマーを一時停止
     clearInterval(mainTimerId);
     clearInterval(miniTimerId);
-    console.log("Timer paused.");
+    pausedMainRemainingTime = mainRemainingTime;
+    pausedMiniRemainingTime = miniRemainingTime;
+    console.log("Timer paused. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
   } else {
+    // タイマーを再開
+    console.log("Resuming timer. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
+    mainRemainingTime = pausedMainRemainingTime;
+    miniRemainingTime = pausedMiniRemainingTime;
     if (currentTimerType === "main" || currentTimerType === "break") {
       startMainTimer();
     } else if (currentTimerType === "mini") {
       startMiniTimer();
     }
-    console.log("Timer Resumed");
   }
   mainWindow.webContents.send("timer-paused", isPaused);
   updatePauseButtonIcon();
+  updateTimerDisplay();
 });
+
 
 ipcMain.on("stop-timer", () => {
   console.log("stop-timerのmain処理");
@@ -283,18 +390,12 @@ ipcMain.on("stop-timer", () => {
 
 ipcMain.on('show-stretch', () => {
   createStretchWindow();
-  fs.readFile(path.join(__dirname, 'stretches.json'), 'utf-8', (err, data) => {
-    if (err) {
-      console.error('Error reading stretches.json:', err);
-      return;
-    }
-    try {
-      const stretches = JSON.parse(data);
-      stretchWindow.webContents.send('display-stretches', stretches);
-    } catch (parseError) {
-      console.error('Error parsing stretches.json:', parseError);
-    }
-  });
+  try {
+    const stretches = readStretchesFile();
+    stretchWindow.webContents.send('display-stretches', stretches);
+  } catch (error) {
+    console.error('Error displaying stretches:', error);
+  }
 });
 
 ipcMain.on('update-timer-settings', (event, type, seconds) => {
@@ -308,17 +409,19 @@ ipcMain.on('update-timer-settings', (event, type, seconds) => {
       breakTimerDefault = seconds;
       if (currentTimerType === 'break' && !isPaused) mainRemainingTime = seconds;
       break;
-    case 'miniTimer':
+    case 'intervalTime':
       miniTimerDefault = seconds;
       if (currentTimerType === 'mini' && !isPaused) miniRemainingTime = seconds;
       break;
   }
-  updateTimerDisplay();
-});
-
-ipcMain.on('update-interval-time', (event, newIntervalTime) => {
-  intervalTimeDefault = newIntervalTime;
-  miniRemainingTime = intervalTimeDefault;
+  saveSettings({
+    focusTime: mainTimerDefault,
+    breakTime: breakTimerDefault,
+    intervalTime: miniTimerDefault,
+    intervalsEnabled,
+    intervalCount,
+    intervalTimes
+  });
   updateTimerDisplay();
 });
 
@@ -328,14 +431,37 @@ ipcMain.on('update-interval-settings', (event, enabled, count, intervals) => {
   intervalCount = Math.min(count, 10);
   intervalTimes = intervals.slice(0, intervalCount);
   console.log(`Updated interval times: ${JSON.stringify(intervalTimes)}`);
-  saveSettings();
+  saveSettings({
+    focusTime: mainTimerDefault,
+    breakTime: breakTimerDefault,
+    intervalTime: miniTimerDefault,
+    intervalsEnabled,
+    intervalCount,
+    intervalTimes
+  });
 });
 
-ipcMain.on('show-notification', (event, title, body) => {
-  new Notification({ title, body }).show();
+ipcMain.handle('save-settings', async (event, settings) => {
+  saveSettings(settings);
+  return true;
 });
 
-// アプリケーションイベントハンドラー
+ipcMain.handle('get-current-timer-values', () => {
+  return {
+    mainRemainingTime,
+    miniRemainingTime
+  };
+});
+
+ipcMain.handle('update-settings', async (event, settings) => {
+  loadSettingsWithoutResettingTimer(settings);
+  return true;
+});
+
+ipcMain.on("stop-timer", stopTimer);
+ipcMain.on("pause-resume-timer", pauseResumeTimer);
+
+// アプリケーションのイベントハンドラー
 app.whenReady().then(() => {
   loadSettings();
   createMainWindow();
@@ -352,4 +478,8 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createMainWindow();
   }
+});
+
+ipcMain.on('show-notification', (event, title, body) => {
+  new Notification({ title, body }).show();
 });

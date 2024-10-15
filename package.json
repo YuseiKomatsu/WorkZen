@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win",
-    "dev": "nodemon --exec electron ."
+    "dev": "nodemon --exec \"electron .\" --ext js,html,css"
   },
   "author": {
     "name": "Yusei Komatsu",
@@ -47,6 +47,7 @@
     }
   },
   "dependencies": {
+    "electron-store": "^7.0.3",
     "ionicons": "^7.4.0",
     "react-native-vector-icons": "^10.1.0"
   }

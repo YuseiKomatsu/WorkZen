@@ -2,17 +2,18 @@ let intervalCount = 2;
 let isIntervalsEnabled = true;
 let isAutoCalcEnabled = true;
 
+// DOMコンテンツロード時の初期化
 document.addEventListener("DOMContentLoaded", () => {
   initializeTabs();
   initializeNavigation();
   initializeIntervalControls();
-  initializeTimerDisplay();
   initializeTimerSettings();
   initializeBackButton();
-  initializeTimerButtons();
-  updateDisplay();
+  loadSettings();
+  loadCurrentSettings();
 });
 
+// タブの初期化
 function initializeTabs() {
   const tabs = document.querySelectorAll(".tabbar .tab");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -21,10 +22,12 @@ function initializeTabs() {
     tab.addEventListener("click", () => {
       const targetId = tab.getAttribute("data-tab");
       activateTab(tab, targetId, tabs, tabContents);
+      saveSettings();
     });
   });
 }
 
+// タブのアクティブ化
 function activateTab(clickedTab, targetId, allTabs, allContents) {
   allTabs.forEach(t => t.classList.remove("active"));
   clickedTab.classList.add("active");
@@ -43,6 +46,7 @@ function activateTab(clickedTab, targetId, allTabs, allContents) {
   });
 }
 
+// ナビゲーションの初期化
 function initializeNavigation() {
   const navButtons = document.querySelectorAll('.nav-button');
   const settingsContents = document.querySelectorAll('.settings-content');
@@ -52,60 +56,65 @@ function initializeNavigation() {
       const targetId = button.getAttribute('data-target');
       setActiveNavButton(button, navButtons);
       showSettingsContent(targetId, settingsContents);
+      updateNavIcons();
     });
   });
 
-  if (navButtons.length > 0) {
-    const initialActiveButton = navButtons[0];
-    setActiveNavButton(initialActiveButton, navButtons);
-    const initialTargetId = initialActiveButton.getAttribute('data-target');
-    if (initialTargetId) {
-      showSettingsContent(initialTargetId, settingsContents);
-    }
-  }
+  // 初期状態のアイコンを設定
+  updateNavIcons();
 }
 
+// アクティブなナビゲーションボタンの設定
 function setActiveNavButton(activeButton, allButtons) {
-  allButtons.forEach(button => {
-    if (button === activeButton) {
-      button.classList.add('active');
-      button.style.color = '#FFFFFF';
-    } else {
-      button.classList.remove('active');
-      button.style.color = '#6C757D';
-    }
+  allButtons.forEach((button) => {
+    button.classList.toggle("active", button === activeButton);
+    button.style.color = button === activeButton ? "#FFFFFF" : "#6C757D";
   });
 }
 
+// 設定コンテンツの表示
 function showSettingsContent(targetId, allContents) {
-  allContents.forEach(content => {
-    content.classList.toggle('hidden', content.id !== targetId);
+  allContents.forEach((content) => {
+    content.classList.toggle("hidden", content.id !== targetId);
   });
 }
 
+// インターバル制御の初期化
 function initializeIntervalControls() {
-  const enableIntervalsSwitch = document.querySelector('.setting:first-child input[type="checkbox"]');
+  const enableIntervalsSwitch = document.querySelector(
+    '.setting:first-child input[type="checkbox"]'
+  );
   const decrementButton = document.querySelector(".number-input .decrement");
   const incrementButton = document.querySelector(".number-input .increment");
-  const autoCalcSwitch = document.querySelector('.setting:nth-child(4) input[type="checkbox"]');
-  
+  const autoCalcSwitch = document.querySelector(
+    '.setting:nth-child(4) input[type="checkbox"]'
+  );
+  const countDisplay = document.getElementById("interval-count-display");
+
+  if (countDisplay) {
+    countDisplay.textContent = intervalCount;
+  }
+
   if (enableIntervalsSwitch) {
     enableIntervalsSwitch.checked = isIntervalsEnabled;
     enableIntervalsSwitch.addEventListener("change", (e) => {
       isIntervalsEnabled = e.target.checked;
       updateIntervalList();
+      saveSettings();
     });
   }
 
   if (autoCalcSwitch) {
     autoCalcSwitch.checked = isAutoCalcEnabled;
     autoCalcSwitch.addEventListener("change", (e) => {
-      setAutoCalcEnabled(e.target.checked);
+      isAutoCalcEnabled = e.target.checked;
       if (isAutoCalcEnabled) {
         recalculateIntervals();
       }
       updateIntervalList();
+      saveSettings();
     });
+    updateButtonColors(); // ボタンの色を更新
   }
 
   if (decrementButton && incrementButton) {
@@ -114,15 +123,50 @@ function initializeIntervalControls() {
   }
 }
 
+// タイマー設定の初期化
+function initializeTimerSettings() {
+  const timeInputs = document.querySelectorAll(".time-input");
+  timeInputs.forEach((input) => {
+    input.addEventListener("input", handleTimeInput);
+    input.addEventListener("focus", handleTimeFocus);
+    input.addEventListener("blur", handleTimeBlur);
+  });
+}
+
+// 戻るボタンの初期化
+function initializeBackButton() {
+  const backButton = document.getElementById("back-button");
+  const mainWrapper = document.getElementById("main-wrapper");
+  const settingWrapper = document.getElementById("setting-wrapper");
+
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      mainWrapper.classList.remove("hidden");
+      settingWrapper.classList.add("hidden");
+    });
+  }
+
+  const settingsIcon = document.querySelector(".setting-toggle");
+  if (settingsIcon) {
+    settingsIcon.addEventListener("click", () => {
+      mainWrapper.classList.add("hidden");
+      settingWrapper.classList.remove("hidden");
+    });
+  }
+}
+
+// インターバル数の更新
 function updateIntervalCount(change) {
   const newCount = Math.min(Math.max(intervalCount + change, 1), 10);
   if (newCount !== intervalCount) {
     intervalCount = newCount;
     updateDisplay();
     updateButtonColors();
+    saveSettings();
   }
 }
 
+// ボタンの色更新
 function updateButtonColors() {
   const decrementButton = document.querySelector(".number-input .decrement");
   const incrementButton = document.querySelector(".number-input .increment");
@@ -130,204 +174,70 @@ function updateButtonColors() {
   const incrementSvg = incrementButton?.querySelector("svg path");
 
   if (decrementSvg && incrementSvg) {
-    decrementSvg.setAttribute("fill", intervalCount === 1 ? "#6C757D" : "#FFFFFF");
-    incrementSvg.setAttribute("fill", intervalCount === 10 ? "#6C757D" : "#FFFFFF");
+    decrementSvg.setAttribute(
+      "fill",
+      intervalCount === 1 ? "#6C757D" : "#FFFFFF"
+    );
+    incrementSvg.setAttribute(
+      "fill",
+      intervalCount === 10 ? "#6C757D" : "#FFFFFF"
+    );
   }
 }
 
-function initializeTimerButtons() {
-  const startButton = document.getElementById('start-timer');
-  const stopButton = document.getElementById('stop-timer');
-  const pauseButton = document.getElementById('pause-timer');
-  const breakButton = document.getElementById('break-timer');
-
-  if (startButton) {
-    startButton.addEventListener('click', () => {
-      console.log('Start button clicked');
-      window.electronAPI.startMainTimer();
-    });
-  }
-
-  if (stopButton) {
-    stopButton.addEventListener('click', () => {
-      console.log('Stop button clicked');
-      window.electronAPI.stopTimer();
-    });
-  }
-
-  if (pauseButton) {
-    pauseButton.addEventListener('click', () => {
-      console.log('Pause button clicked');
-      window.electronAPI.pauseTimer();
-    });
-  }
-
-  if (breakButton) {
-    breakButton.addEventListener('click', () => {
-      console.log('Break button clicked');
-      window.electronAPI.startBreakTimer();
-    });
-  }
-}
-
-function initializeTimerSettings() {
-  document.addEventListener('input', handleTimeInput, true);
-  document.addEventListener('focus', handleTimeFocus, true);
-  document.addEventListener('blur', handleTimeBlur, true);
-}
-
+// 時間入力の処理
 function handleTimeInput(event) {
-  let value = event.target.value.replace(/\D/g, '');
+  let value = event.target.value.replace(/[^\d]/g, "");
   if (value.length > 2) {
     value = value.slice(0, 2);
   }
   const numValue = parseInt(value, 10);
   if (numValue > 59) {
-    value = '59';
+    value = "59";
   }
-  event.target.value = value; // パディングを適用せずにそのまま表示
+  event.target.value = value;
+
+  if (event.target.closest(".interval-item")) {
+    isAutoCalcEnabled = false;
+    document.querySelector(
+      '.setting:nth-child(4) input[type="checkbox"]'
+    ).checked = false;
+  }
 }
 
+// 時間入力フォーカス時の処理
 function handleTimeFocus(event) {
-  event.target.select();
+  if (typeof event.target.select === "function") {
+    event.target.select();
+  }
 }
 
+// 時間入力ブラー時の処理
 function handleTimeBlur(event) {
-  let value = event.target.value.replace(/\D/g, '');
-  event.target.value = value.padStart(2, '0');
+  let value = event.target.value.replace(/[^\d]/g, "");
+  event.target.value = value.padStart(2, "0");
+  saveSettings();
 }
 
-function getInputType(element) {
-  if (element.closest('.time-setting')) {
-    return element.closest('.time-setting').querySelector('.time-input:first-child') === element ? 'focusTime' : 'breakTime';
-  } else if (element.closest('.interval-item')) {
-    return 'intervalItem';
-  } else {
-    return 'intervalTime';
-  }
-}
-
-function handleTimeSettingChange(inputType) {
-  let selector, updateFunction;
-  
-  switch(inputType) {
-    case 'focusTime':
-      selector = '#basic-content .time-setting:first-child .time-input';
-      updateFunction = (totalSeconds) => window.electronAPI.updateTimerSettings('focusTime', totalSeconds);
-      break;
-    case 'breakTime':
-      selector = '#basic-content .time-setting:nth-child(2) .time-input';
-      updateFunction = (totalSeconds) => window.electronAPI.updateTimerSettings('breakTime', totalSeconds);
-      break;
-    case 'intervalTime':
-      selector = '.interval-time-input-container .time-input';
-      updateFunction = (totalSeconds) => {
-        window.electronAPI.updateIntervalTime(totalSeconds);
-        updateTimerDisplay(null, totalSeconds);
-      };
-      break;
-    case 'intervalItem':
-      updateIntervalSettings();
-      return;
-  }
-  
-  const inputs = document.querySelectorAll(selector);
-  const totalSeconds = getTimeInSeconds(inputs[0], inputs[1]);
-  updateFunction(totalSeconds);
-}
-
-function getTimeInSeconds(minutesInput, secondsInput) {
-  const minutes = parseInt(minutesInput.value, 10) || 0;
-  const seconds = parseInt(secondsInput.value, 10) || 0;
-  return minutes * 60 + seconds;
-}
-
-function initializeBackButton() {
-  const backButton = document.getElementById('back-button');
-  const mainWrapper = document.getElementById('main-wrapper');
-  const settingWrapper = document.getElementById('setting-wrapper');
-
-  backButton.addEventListener('click', () => {
-    mainWrapper.classList.remove('hidden');
-    settingWrapper.classList.add('hidden');
-  });
-
-  const settingsIcon = document.querySelector('.setting-toggle');
-  if (settingsIcon) {
-    settingsIcon.addEventListener('click', () => {
-      mainWrapper.classList.add('hidden');
-      settingWrapper.classList.remove('hidden');
-    });
-  }
-}
-
-function updateDisplay() {
-  const countDisplay = document.getElementById("interval-count-display");
-  if (countDisplay) {
-    countDisplay.textContent = intervalCount;
-  }
-  updateIntervalList();
-}
-
-function updateTimerDisplay(mainTime, miniTime) {
-  const mainDisplay = document.getElementById('timer-display');
-  const miniDisplay = document.getElementById('timer-display-mini');
-  
-  if (mainTime !== null && mainDisplay) {
-    mainDisplay.innerText = formatTime(mainTime);
-  }
-  if (miniTime !== null && miniDisplay) {
-    miniDisplay.innerText = formatTime(miniTime);
-  }
-}
-
-function formatTime(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-window.electronAPI.updateTimer((event, { mainRemainingTime, miniRemainingTime }) => {
-  updateTimerDisplay(mainRemainingTime, miniRemainingTime);
-});
-
+// インターバルリストの更新
 function updateIntervalList() {
-  console.log('Updating interval list');
-  const intervalList = document.getElementById('interval-list');
-  if (!intervalList) {
-    console.error('Interval list element not found');
-    return;
-  }
+  const intervalList = document.getElementById("interval-list");
+  if (!intervalList) return;
 
-  const currentIntervals = Array.from(document.querySelectorAll('.interval-item')).map(item => {
-    const inputs = item.querySelectorAll('.time-input');
-    return {
-      minutes: parseInt(inputs[0].value, 10) || 0,
-      seconds: parseInt(inputs[1].value, 10) || 0
-    };
-  });
+  intervalList.innerHTML = "";
 
-  console.log('Current intervals:', currentIntervals);
-
-  intervalList.innerHTML = '';
-
-  if (!isIntervalsEnabled) {
-    console.log('Intervals are disabled');
-    return;
-  }
+  if (!isIntervalsEnabled) return;
 
   for (let i = 1; i <= intervalCount; i++) {
-    const currentTime = currentIntervals[i-1] || { minutes: 0, seconds: 0 };
-    console.log(`Creating interval item ${i} with time:`, currentTime);
-    const intervalItem = createIntervalItem(i, currentTime);
+    const intervalItem = createIntervalItem(i);
     intervalList.appendChild(intervalItem);
   }
 
   updateIntervalSettings();
 }
 
-function createIntervalItem(index, time = { minutes: 0, seconds: 0 }) {
-  console.log('Creating interval item', index, time);
+// インターバルアイテムの作成
+function createIntervalItem(index) {
   const intervalItem = document.createElement("div");
   intervalItem.classList.add("setting", "interval-item");
 
@@ -337,82 +247,34 @@ function createIntervalItem(index, time = { minutes: 0, seconds: 0 }) {
   const timeInputContainer = document.createElement("div");
   timeInputContainer.classList.add("time-input-container");
 
-  const minutesInput = document.createElement("input");
-  minutesInput.type = "text";
-  minutesInput.classList.add("time-input", "interval-item-input", "minutes");
-  minutesInput.maxLength = 2;
-  minutesInput.value = time.minutes.toString().padStart(2, "0");
-
-  const separator = document.createElement("span");
-  separator.classList.add("time-separator");
-  separator.textContent = ":";
-
-  const secondsInput = document.createElement("input");
-  secondsInput.type = "text";
-  secondsInput.classList.add("time-input", "interval-item-input", "seconds");
-  secondsInput.maxLength = 2;
-  secondsInput.value = time.seconds.toString().padStart(2, "0");
+  const minutesInput = createTimeInput("minutes", "00");
+  const separator = createSeparator();
+  const secondsInput = createTimeInput("seconds", "00");
 
   timeInputContainer.append(minutesInput, separator, secondsInput);
   intervalItem.append(label, timeInputContainer);
 
-  // Interval Item固有の処理を追加
-  [minutesInput, secondsInput].forEach(input => {
-    input.addEventListener('input', handleIntervalItemInput);
-    input.addEventListener('focus', handleTimeFocus);
-    input.addEventListener('blur', handleIntervalItemBlur);
+  [minutesInput, secondsInput].forEach((input) => {
+    input.addEventListener("input", handleTimeInput);
+    input.addEventListener("focus", handleTimeFocus);
+    input.addEventListener("blur", handleTimeBlur);
   });
 
-  console.log('Interval item created', intervalItem);
   return intervalItem;
 }
 
-function handleIntervalItemInput(event) {
-  handleTimeInput(event);
-  setAutoCalcEnabled(false);
-}
-
-function handleIntervalItemBlur(event) {
-  handleTimeBlur(event);
-  updateIntervalSettings();
-}
-
+// 時間入力要素の作成
 function createTimeInput(className, value) {
-  console.log('Creating time input', className, value);
   const input = document.createElement("input");
   input.type = "text";
   input.inputMode = "numeric";
   input.pattern = "[0-9]*";
   input.classList.add("time-input", className);
-  input.value = value.toString().padStart(2, "0");
-
-  input.addEventListener('keypress', (event) => {
-    const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-    }
-  });
-
-  input.addEventListener('input', (event) => {
-    let value = event.target.value.replace(/\D/g, '');
-    if (value.length > 2) {
-      value = value.slice(0, 2);
-    }
-    const numValue = parseInt(value, 10);
-    if (numValue > 59) {
-      value = '59';
-    }
-    event.target.value = value.padStart(2, '0');
-  });
-
-  input.addEventListener('focus', (event) => {
-    event.target.select();
-  });
-
+  input.value = value;
   return input;
 }
 
-
+// セパレーターの作成
 function createSeparator() {
   const separator = document.createElement("span");
   separator.classList.add("time-separator");
@@ -420,81 +282,222 @@ function createSeparator() {
   return separator;
 }
 
-function setAutoCalcEnabled(enabled) {
-  isAutoCalcEnabled = enabled;
-  const autoCalcSwitch = document.querySelector('.setting:nth-child(4) input[type="checkbox"]');
-  if (autoCalcSwitch) {
-    autoCalcSwitch.checked = enabled;
-  }
-}
-
-function recalculateIntervals() {
-  const focusTimeInputs = document.querySelectorAll('#basic-content .time-setting:first-child .time-input');
-  const intervalTimeInputs = document.querySelectorAll('.interval-time-input-container .time-input');
-
-  const mainTimer = getTimeInSeconds(focusTimeInputs[0], focusTimeInputs[1]);
-  const intervalTime = getTimeInSeconds(intervalTimeInputs[0], intervalTimeInputs[1]);
-
-  const focusSessionTimeSeconds = calculateFocusSessionTime(mainTimer, intervalTime, intervalCount);
-  let remainingTime = mainTimer;
-
-  const intervalItems = document.querySelectorAll('.interval-item');
-  intervalItems.forEach((item, index) => {
-    if (index < intervalCount) {
-      remainingTime -= focusSessionTimeSeconds;
-      const intervalStart = secondsToMinutesAndSeconds(remainingTime);
-      
-      const minutesInput = item.querySelector('.time-input.minutes');
-      const secondsInput = item.querySelector('.time-input.seconds');
-      
-      minutesInput.value = intervalStart.minutes.toString().padStart(2, '0');
-      secondsInput.value = intervalStart.seconds.toString().padStart(2, '0');
-      
-      remainingTime -= intervalTime;
-      if (remainingTime < 0) remainingTime = 0;
-    }
-  });
-}
-
+// インターバル設定の更新
 function updateIntervalSettings() {
-  console.log('Updating interval settings');
-  const isEnabled = document.querySelector('.setting:first-child input[type="checkbox"]').checked;
-  console.log('Intervals enabled:', isEnabled);
+  const intervals = Array.from(document.querySelectorAll(".interval-item")).map(
+    (item) => {
+      const inputs = item.querySelectorAll(".time-input");
+      const minutes = parseInt(inputs[0].value, 10) || 0;
+      const seconds = parseInt(inputs[1].value, 10) || 0;
+      return minutes * 60 + seconds;
+    }
+  );
 
-  const intervals = Array.from(document.querySelectorAll('.interval-item')).map(item => {
-    const inputs = item.querySelectorAll('.time-input');
-    const minutes = parseInt(inputs[0].value, 10) || 0;
-    const seconds = parseInt(inputs[1].value, 10) || 0;
-    console.log('Interval item values:', minutes, seconds);
-    return minutes * 60 + seconds;
-  });
-
-  console.log('Interval count:', intervalCount);
-  console.log('Intervals:', intervals);
-
-  window.electronAPI.updateIntervalSettings(isEnabled, intervalCount, intervals);
+  window.electronAPI.updateIntervalSettings(
+    isIntervalsEnabled,
+    intervalCount,
+    intervals
+  );
 }
 
-function calculateFocusSessionTime(mainTimerSeconds, intervalTimeSeconds, intervalCount) {
-  return (mainTimerSeconds - intervalTimeSeconds * intervalCount) / (intervalCount + 1);
+// インターバルの再計算
+function recalculateIntervals() {
+  // この関数の実装は現在のコードには含まれていないので、必要に応じて実装してください
+  console.log("Recalculating intervals");
 }
 
-function secondsToMinutesAndSeconds(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.round(seconds % 60);
-  return { minutes, seconds: remainingSeconds };
-}
-
+// 序数接尾辞の取得
 function getOrdinalSuffix(i) {
-  const j = i % 10, k = i % 100;
+  const j = i % 10,
+    k = i % 100;
   if (j == 1 && k != 11) return "st";
   if (j == 2 && k != 12) return "nd";
   if (j == 3 && k != 13) return "rd";
   return "th";
 }
 
-function initializeTimerDisplay() {
-  updateTimerDisplay(0, 0);
+// 設定の保存
+async function saveSettings() {
+    try {
+      const settings = {
+        focusTime: getTimeInSeconds(document.getElementById('focus-time-minutes'), document.getElementById('focus-time-seconds')),
+        breakTime: getTimeInSeconds(document.getElementById('break-time-minutes'), document.getElementById('break-time-seconds')),
+        intervalTime: getTimeInSeconds(document.getElementById('interval-time-minutes'), document.getElementById('interval-time-seconds')),
+        intervalsEnabled: isIntervalsEnabled,
+        intervalCount: intervalCount,
+        isAutoCalcEnabled: isAutoCalcEnabled,
+        intervalTimes: getIntervalTimes()
+      };
+  
+      const success = await window.electronAPI.saveSettings(settings);
+      if (success) {
+        console.log('Settings saved successfully');
+        // 現在のタイマー値を更新する代わりに、設定のみを更新
+        await window.electronAPI.updateSettings(settings);
+      } else {
+        console.error('Failed to save settings');
+      }
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    }
+  }
+
+// インターバル時間の取得
+function getIntervalTimes() {
+  return Array.from(document.querySelectorAll(".interval-item")).map((item) => {
+    const inputs = item.querySelectorAll(".time-input");
+    return getTimeInSeconds(inputs[0], inputs[1]);
+  });
 }
 
-console.log('settings.js loaded');
+// 設定の読み込み
+async function loadSettings() {
+  try {
+    const settings = await window.electronAPI.getSettings();
+    if (settings) {
+      document.getElementById("focus-time-minutes").value = Math.floor(
+        settings.focusTime / 60
+      )
+        .toString()
+        .padStart(2, "0");
+      document.getElementById("focus-time-seconds").value = (
+        settings.focusTime % 60
+      )
+        .toString()
+        .padStart(2, "0");
+      document.getElementById("break-time-minutes").value = Math.floor(
+        settings.breakTime / 60
+      )
+        .toString()
+        .padStart(2, "0");
+      document.getElementById("break-time-seconds").value = (
+        settings.breakTime % 60
+      )
+        .toString()
+        .padStart(2, "0");
+      document.getElementById("interval-time-minutes").value = Math.floor(
+        settings.intervalTime / 60
+      )
+        .toString()
+        .padStart(2, "0");
+      document.getElementById("interval-time-seconds").value = (
+        settings.intervalTime % 60
+      )
+        .toString()
+        .padStart(2, "0");
+      isIntervalsEnabled = settings.intervalsEnabled;
+      intervalCount = settings.intervalCount;
+      isAutoCalcEnabled = settings.isAutoCalcEnabled;
+
+      updateDisplay();
+      updateIntervalList();
+    }
+  } catch (error) {
+    console.error("Failed to load settings:", error);
+  }
+}
+
+// 設定の読み込み
+async function loadCurrentSettings() {
+  try {
+    const settings = await window.electronAPI.getCurrentSettings();
+
+    updateTimerInputs("focus-time", settings.focusTime);
+    updateTimerInputs("break-time", settings.breakTime);
+    updateTimerInputs("interval-time", settings.intervalTime);
+
+    isIntervalsEnabled = settings.intervalsEnabled;
+    intervalCount = settings.intervalCount;
+    isAutoCalcEnabled = settings.isAutoCalcEnabled;
+
+    updateDisplay();
+    updateIntervalList();
+    updateIntervalTimes(settings.intervalTimes);
+
+    updateSwitches();
+  } catch (error) {
+    console.error("Failed to load current settings:", error);
+  }
+}
+
+// タイマー入力の更新
+function updateTimerInputs(id, seconds) {
+  document.getElementById(`${id}-minutes`).value = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0");
+  document.getElementById(`${id}-seconds`).value = (seconds % 60)
+    .toString()
+    .padStart(2, "0");
+}
+
+// インターバル時間の更新
+function updateIntervalTimes(intervalTimes) {
+  const intervalItems = document.querySelectorAll(".interval-item");
+  intervalTimes.forEach((time, index) => {
+    if (intervalItems[index]) {
+      const inputs = intervalItems[index].querySelectorAll(".time-input");
+      inputs[0].value = Math.floor(time / 60)
+        .toString()
+        .padStart(2, "0");
+      inputs[1].value = (time % 60).toString().padStart(2, "0");
+    }
+  });
+}
+
+// スイッチの更新
+function updateSwitches() {
+  const enableIntervalsSwitch = document.querySelector(
+    '.setting:first-child input[type="checkbox"]'
+  );
+  if (enableIntervalsSwitch) {
+    enableIntervalsSwitch.checked = isIntervalsEnabled;
+  }
+
+  const autoCalcSwitch = document.querySelector(
+    '.setting:nth-child(4) input[type="checkbox"]'
+  );
+  if (autoCalcSwitch) {
+    autoCalcSwitch.checked = isAutoCalcEnabled;
+  }
+}
+
+async function loadCurrentTimerValues() {
+  try {
+    const timerValues = await window.electronAPI.getCurrentTimerValues();
+    window.electronAPI.updateTimer(timerValues);
+  } catch (error) {
+    console.error("Failed to load current timer values:", error);
+  }
+}
+
+// 秒単位での時間取得
+function getTimeInSeconds(minutesElement, secondsElement) {
+  const minutes = minutesElement ? parseInt(minutesElement.value, 10) || 0 : 0;
+  const seconds = secondsElement ? parseInt(secondsElement.value, 10) || 0 : 0;
+  return minutes * 60 + seconds;
+}
+
+// 表示の更新
+function updateDisplay() {
+  const countDisplay = document.getElementById("interval-count-display");
+  if (countDisplay) {
+    countDisplay.textContent = intervalCount;
+  }
+  updateIntervalList();
+}
+
+function updateNavIcons() {
+  const timerSettingsIcon = document.querySelector('.nav-icons [data-target="timer-settings"] svg');
+  const windowSettingsIcon = document.querySelector('.nav-icons [data-target="window-settings"] svg');
+  const activeContent = document.querySelector('.settings-content:not(.hidden)');
+
+  if (activeContent.id === 'timer-settings') {
+    timerSettingsIcon.style.fill = '#FFFFFF';
+    windowSettingsIcon.style.fill = '#6C757D';
+  } else {
+    timerSettingsIcon.style.fill = '#6C757D';
+    windowSettingsIcon.style.fill = '#FFFFFF';
+  }
+}
+
+console.log("settings.js loaded");

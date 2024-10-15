@@ -1,0 +1,11 @@
+{
+  "mainTimerDefault": 3120,
+  "breakTimerDefault": 1020,
+  "miniTimerDefault": 300,
+  "intervalsEnabled": true,
+  "intervalCount": 2,
+  "intervalTimes": [
+    0,
+    0
+  ]
+}
