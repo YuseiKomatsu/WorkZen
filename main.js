@@ -70,10 +70,13 @@ function createMainWindow() {
 
     mainWindow.loadFile("index.html");
     
+    // if (process.env.NODE_ENV === 'development') {
       mainWindow.webContents.openDevTools({ mode: 'detach' });
+    // }
 
     mainWindow.webContents.on('did-finish-load', () => {
-      updateTimerDisplay();
+      const settings = loadSettings();
+      mainWindow.webContents.send('settings-updated', settings);
     });
 
     mainWindow.on('closed', () => {
@@ -108,18 +111,18 @@ function createStretchWindow() {
 // タイマー表示の更新
 function updateTimerDisplay() {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    console.log('Updating timer display:', mainRemainingTime, miniRemainingTime);
+    const settings = loadSettings();
     mainWindow.webContents.send("update-timer", {
       mainRemainingTime,
-      miniRemainingTime
+      miniRemainingTime,
+      settings
     });
-  } else {
-    console.log('Main window is not available for updating timer display');
   }
 }
 
 // メインタイマーの開始
 function startMainTimer() {
+  const settings = loadSettings();
   clearInterval(mainTimerId);
   console.log(`Starting main timer. intervalsEnabled: ${intervalsEnabled}, intervalCount: ${intervalCount}`);
   console.log(`Interval times: ${JSON.stringify(intervalTimes)}`);
@@ -154,9 +157,10 @@ function startMainTimer() {
 
 // ミニタイマーの開始
 function startMiniTimer() {
+  const settings = loadSettings();
   currentTimerType = "mini";
   if (miniRemainingTime === 0) {
-    miniRemainingTime = miniTimerDefault;
+    miniRemainingTime = settings.miniTimerDefault;
   }
   clearInterval(miniTimerId);
   miniTimerId = setInterval(() => {
@@ -178,12 +182,13 @@ function startMiniTimer() {
 }
 
 function stopTimer() {
+  const settings = loadSettings();
   clearInterval(mainTimerId);
   clearInterval(miniTimerId);
   isTimerRunning = false;
   isPaused = false;
-  mainRemainingTime = mainTimerDefault;
-  miniRemainingTime = miniTimerDefault;
+  mainRemainingTime = settings.mainTimerDefault;
+  miniRemainingTime = settings.miniTimerDefault;
   currentTimerType = "main";
   updateTimerDisplay();
   updatePauseResumeButton();
@@ -241,38 +246,13 @@ function readStretchesFile() {
 
 // 設定の読み込み
 function loadSettings() {
-  const settings = store.get('settings', defaultSettings);
-  
-  mainTimerDefault = settings.focusTime;
-  breakTimerDefault = settings.breakTime;
-  miniTimerDefault = settings.intervalTime;
-  intervalsEnabled = settings.intervalsEnabled;
-  intervalCount = settings.intervalCount;
-  isAutoCalcEnabled = settings.isAutoCalcEnabled;
-  intervalTimes = settings.intervalTimes || [];
-
-  mainRemainingTime = mainTimerDefault;
-  miniRemainingTime = miniTimerDefault;
-
-  updateTimerDisplay();
+  return store.get('settings', defaultSettings);
 }
 
 // 設定の保存
 function saveSettings(settings) {
   store.set('settings', settings);
-  console.log('Settings saved successfully:', settings);
-  
-  mainTimerDefault = settings.focusTime;
-  breakTimerDefault = settings.breakTime;
-  miniTimerDefault = settings.intervalTime;
-  intervalsEnabled = settings.intervalsEnabled;
-  intervalCount = settings.intervalCount;
-  isAutoCalcEnabled = settings.isAutoCalcEnabled;
-  intervalTimes = settings.intervalTimes;
-
-  mainRemainingTime = mainTimerDefault;
-  miniRemainingTime = miniTimerDefault;
-  updateTimerDisplay();
+  return settings;
 }
 
 // タイマーをリセットせずに設定を読み込む
@@ -289,8 +269,13 @@ function loadSettingsWithoutResettingTimer(settings) {
 }
 
 // IPC ハンドラーの設定
+
+ipcMain.handle('get-settings', () => {
+  return loadSettings();
+});
+
 ipcMain.handle('get-current-settings', () => {
-  return store.get('settings', defaultSettings);
+  return loadSettings(); 
 });
 
 ipcMain.handle('get-stretches', async () => {
@@ -303,39 +288,43 @@ ipcMain.handle('get-stretches', async () => {
 });
 
 ipcMain.on("start-main-timer", () => {
-  mainRemainingTime = mainTimerDefault;
-  miniRemainingTime = miniTimerDefault;
+  const settings = loadSettings();
+  mainRemainingTime = settings.focusTime;
+  miniRemainingTime = settings.intervalTime;
   isPaused = false;
   currentTimerType = "main";
   startMainTimer();
 });
 
 ipcMain.on("start-mini-timer", () => {
-  miniRemainingTime = miniTimerDefault;
+  const settings = loadSettings();
+  miniRemainingTime = settings.miniTimerDefault;
   currentTimerType = "mini";
   startMiniTimer();
 });
 
 ipcMain.on("start-break-timer", () => {
-  mainRemainingTime = breakTimerDefault;
-  miniRemainingTime = miniTimerDefault;
+  const settings = loadSettings();
+  mainRemainingTime = settings.breakTimerDefault;
+  miniRemainingTime = settings.miniTimerDefault;
   isPaused = false;
   currentTimerType = "break";
   startMainTimer();
 });
 
 ipcMain.on("pause-timer", () => {
+  const settings = loadSettings();
   isPaused = !isPaused;
   if (isPaused) {
     clearInterval(mainTimerId);
     clearInterval(miniTimerId);
-    pausedMainRemainingTime = mainRemainingTime;
-    pausedMiniRemainingTime = miniRemainingTime;
+    pausedMainRemainingTime = settings.mainRemainingTime;
+    pausedMiniRemainingTime = settings.miniRemainingTime;
     console.log("Timer paused. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
   } else {
     console.log("Resuming timer. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
-    mainRemainingTime = pausedMainRemainingTime;
-    miniRemainingTime = pausedMiniRemainingTime;
+    mainRemainingTime = settings.pausedMainRemainingTime;
+    miniRemainingTime = settings.pausedMiniRemainingTime;
     if (currentTimerType === "main" || currentTimerType === "break") {
       startMainTimer();
     } else if (currentTimerType === "mini") {
@@ -375,9 +364,10 @@ ipcMain.on('update-interval-settings', (event, enabled, count, intervals) => {
   });
 });
 
-ipcMain.handle('save-settings', async (event, settings) => {
-  saveSettings(settings);
-  return true;
+ipcMain.handle('save-settings', (event, newSettings) => {
+  const updatedSettings = saveSettings(newSettings);
+  mainWindow.webContents.send('settings-updated', updatedSettings);
+  return updatedSettings;
 });
 
 ipcMain.handle('get-current-timer-values', () => {
@@ -415,8 +405,4 @@ app.on('activate', () => {
 
 ipcMain.on('show-notification', (event, title, body) => {
   new Notification({ title, body }).show();
-});
-
-ipcMain.handle('get-settings', () => {
-  return store.get('settings', defaultSettings);
 });

@@ -1,6 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    // 設定関連
+    getSettings: () => ipcRenderer.invoke('get-settings'),
+    saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+    onSettingsUpdated: (callback) => ipcRenderer.on('settings-updated', (event, settings) => callback(settings)),
+    getCurrentSettings: () => ipcRenderer.invoke('get-current-settings'),
+
     // タイマー制御
     startMainTimer: () => ipcRenderer.send('start-main-timer'),
     startBreakTimer: () => ipcRenderer.send('start-break-timer'),
@@ -10,40 +16,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // タイマー更新とイベント
     updateTimer: (callback) => {
-        if (typeof callback === 'function') {
-            ipcRenderer.on('update-timer', (event, data) => callback(data));
-        }
+        ipcRenderer.on('update-timer', (event, data) => callback(data));
     },
     onTimerPaused: (callback) => {
-        if (typeof callback === 'function') {
-            ipcRenderer.on('timer-paused', (event, isPaused) => callback(isPaused));
-        }
+        ipcRenderer.on('timer-paused', (event, isPaused) => callback(isPaused));
     },
     onUpdatePauseResumeButton: (callback) => {
-        if (typeof callback === 'function') {
-            ipcRenderer.on('update-pause-resume-button', (event, isPaused, isTimerRunning) => callback(isPaused, isTimerRunning));
-        }
+        ipcRenderer.on('update-pause-resume-button', (event, isPaused, isTimerRunning) => callback(isPaused, isTimerRunning));
     },
 
     // 通知
     showNotification: (title, body) => ipcRenderer.send('show-notification', title, body),
 
-    // 設定更新
-    updateIntervalSettings: (enabled, count, intervals) => 
-        ipcRenderer.send('update-interval-settings', enabled, count, intervals),
-    getCurrentTimerValues: () => ipcRenderer.invoke('get-current-timer-values'),
-    getCurrentSettings: () => ipcRenderer.invoke('get-current-settings'),
-    updateSettings: (settings) => ipcRenderer.invoke('update-settings', settings),
-    getSettings: () => ipcRenderer.invoke('get-settings'),
-    saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
-
     // ストレッチ関連
     getStretches: () => ipcRenderer.invoke('get-stretches'),
     showStretch: () => ipcRenderer.send('show-stretch'),
     displayStretches: (callback) => {
-        if (typeof callback === 'function') {
-            ipcRenderer.on('display-stretches', (event, stretches) => callback(stretches));
-        }
+        ipcRenderer.on('display-stretches', (event, stretches) => callback(stretches));
     }
 });
 

@@ -47,9 +47,15 @@ function updateTimerDisplay(mainTime, miniTime) {
 async function updateMainScreenDisplay() {
     try {
         const settings = await window.electronAPI.getSettings();
-        updateTimerDisplay(settings.focusTime, settings.intervalTime);
+        if (settings && typeof settings.focusTime !== 'undefined' && typeof settings.intervalTime !== 'undefined') {
+            updateTimerDisplay(settings.focusTime, settings.intervalTime);
+        } else {
+            console.warn('Invalid settings received:', settings);
+            updateTimerDisplay(0, 0);  // デフォルト値を表示
+        }
     } catch (error) {
         console.error('Failed to update main screen display:', error);
+        updateTimerDisplay(0, 0);  // エラー時もデフォルト値を表示
     }
 }
 
@@ -451,23 +457,27 @@ function recalculateIntervals() {
 // 現在の設定の読み込み
 async function loadCurrentSettings() {
     try {
-      const settings = await window.electronAPI.getCurrentSettings();
-  
-      updateTimerInputs("focus-time", settings.focusTime);
-      updateTimerInputs("break-time", settings.breakTime);
-      updateTimerInputs("interval-time", settings.intervalTime);
-  
-      isIntervalsEnabled = settings.intervalsEnabled;
-      intervalCount = settings.intervalCount;
-      isAutoCalcEnabled = settings.isAutoCalcEnabled;
-  
-      updateDisplay();
-      updateIntervalList();
-      updateIntervalTimes(settings.intervalTimes);
-  
-      updateSwitches();
+        const settings = await window.electronAPI.getCurrentSettings();
+        if (settings) {
+            // 設定を適用
+            updateTimerInputs("focus-time", settings.focusTime);
+            updateTimerInputs("break-time", settings.breakTime);
+            updateTimerInputs("interval-time", settings.intervalTime);
+
+            isIntervalsEnabled = settings.intervalsEnabled;
+            intervalCount = settings.intervalCount;
+            isAutoCalcEnabled = settings.isAutoCalcEnabled;
+
+            updateDisplay();
+            updateIntervalList();
+            updateIntervalTimes(settings.intervalTimes);
+
+            updateSwitches();
+        } else {
+            console.warn('No settings received from getCurrentSettings');
+        }
     } catch (error) {
-      console.error("Failed to load current settings:", error);
+        console.error("Failed to load current settings:", error);
     }
 }
 
