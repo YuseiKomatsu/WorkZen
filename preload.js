@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
     onSettingsUpdated: (callback) => ipcRenderer.on('settings-updated', (event, settings) => callback(settings)),
     getCurrentSettings: () => ipcRenderer.invoke('get-current-settings'),
+    updateIntervalSettings: (enabled, count, intervals, isAutoCalcEnabled) => 
+        ipcRenderer.send('update-interval-settings', enabled, count, intervals, isAutoCalcEnabled),
 
     // タイマー制御
     startMainTimer: () => ipcRenderer.send('start-main-timer'),

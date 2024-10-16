@@ -9,7 +9,7 @@ const defaultSettings = {
   focusTime: 52 * 60,
   breakTime: 17 * 60,
   intervalTime: 5 * 60,
-  intervalsEnabled: false,
+  intervalsEnabled: true,
   intervalCount: 2,
   isAutoCalcEnabled: true,
   intervalTimes: []
@@ -246,13 +246,26 @@ function readStretchesFile() {
 
 // 設定の読み込み
 function loadSettings() {
-  return store.get('settings', defaultSettings);
+  const settings = store.get('settings', defaultSettings);
+  isAutoCalcEnabled = settings.isAutoCalcEnabled; // グローバル変数を更新
+  return settings;
 }
 
 // 設定の保存
 function saveSettings(settings) {
-  store.set('settings', settings);
-  return settings;
+  // 既存の設定を読み込む
+  const existingSettings = store.get('settings', defaultSettings);
+  
+  // 新しい設定で上書きする
+  const updatedSettings = {
+      ...existingSettings,
+      ...settings,
+      // intervalTimesは常に新しい値で更新する
+      intervalTimes: settings.intervalTimes || existingSettings.intervalTimes
+  };
+
+  store.set('settings', updatedSettings);
+  return updatedSettings;
 }
 
 // タイマーをリセットせずに設定を読み込む
@@ -349,23 +362,17 @@ ipcMain.on('show-stretch', () => {
 
 ipcMain.on('update-interval-settings', (event, enabled, count, intervals) => {
   console.log(`Received interval settings: enabled=${enabled}, count=${count}, intervals=${JSON.stringify(intervals)}`);
-  intervalsEnabled = enabled;
-  intervalCount = Math.min(count, 10);
-  intervalTimes = intervals.slice(0, intervalCount);
-  console.log(`Updated interval times: ${JSON.stringify(intervalTimes)}`);
-  saveSettings({
-    focusTime: mainTimerDefault,
-    breakTime: breakTimerDefault,
-    intervalTime: miniTimerDefault,
-    intervalsEnabled,
-    intervalCount,
-    intervalTimes,
-    isAutoCalcEnabled
-  });
+  const settings = loadSettings();
+  settings.intervalsEnabled = enabled;
+  settings.intervalCount = Math.min(count, 10);
+  settings.intervalTimes = intervals.slice(0, settings.intervalCount);
+  settings.isAutoCalcEnabled = isAutoCalcEnabled;
+  console.log(`Updated settings: ${JSON.stringify(settings)}`);
+  saveSettings(settings);
 });
 
-ipcMain.handle('save-settings', (event, newSettings) => {
-  const updatedSettings = saveSettings(newSettings);
+ipcMain.handle('save-settings', async (event, settings) => {
+  const updatedSettings = saveSettings(settings);
   mainWindow.webContents.send('settings-updated', updatedSettings);
   return updatedSettings;
 });
