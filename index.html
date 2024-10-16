@@ -132,9 +132,9 @@
             <div class="setting">
               <label for="interval-time">Interval Time</label>
               <div class="time-input-container interval-time-input-container">
-                <input type="text" class="time-input interval-time-input minutes" maxlength="2" value="05">
+                <input id="interval-time-minutes" type="text" class="time-input interval-time-input minutes" maxlength="2" value="05">
                 <span class="time-separator">:</span>
-                <input type="text" class="time-input interval-time-input seconds" maxlength="2" value="00">
+                <input type="text" id="interval-time-seconds" class="time-input interval-time-input seconds" maxlength="2" value="00">
               </div>
             </div>
 
@@ -160,9 +160,9 @@
             </div>
 
             <div class="setting">
-              <label class="auto-calc" id="auto-calc-toggle" for="auto-calc">Auto Calc. Intervals</label>
+              <label class="auto-calc" for="auto-calc">Auto Calc. Intervals</label>
               <label class="switch">
-                <input type="checkbox" id="enable-intervals" />
+                <input type="checkbox" id="auto-calc-switch" />
                 <span class="slider round"></span>
               </label>
             </div>
@@ -203,7 +203,7 @@
   </div>
   </div>
   <script src="script.js"></script>
-  <script src="settings.js"></script>
+  <!-- <script src="settings.js"></script> -->
 </body>
 
 </html>

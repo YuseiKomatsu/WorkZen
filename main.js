@@ -29,9 +29,9 @@ let mainTimerId;
 let miniTimerId;
 
 // タイマー設定
-let mainTimerDefault = 52 * 60; // メインタイマーの初期値（52分）
-let breakTimerDefault = 17 * 60; // ブレイクタイマーの初期値（17分）
-let miniTimerDefault = 5 * 60; // ミニタイマーの初期値（5分）
+let mainTimerDefault = 52 * 60;
+let breakTimerDefault = 17 * 60;
+let miniTimerDefault = 5 * 60;
 let mainRemainingTime = mainTimerDefault;
 let miniRemainingTime = miniTimerDefault;
 let currentTimerType = "main";
@@ -58,7 +58,7 @@ function createMainWindow() {
       frame: false,
       resizable: false,
       transparent: true,
-      alwaysOnTop: true,
+      alwaysOnTop: false,
       backgroundThrottling: false,
       webPreferences: {
         nodeIntegration: false,
@@ -69,6 +69,8 @@ function createMainWindow() {
     });
 
     mainWindow.loadFile("index.html");
+    
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
 
     mainWindow.webContents.on('did-finish-load', () => {
       updateTimerDisplay();
@@ -77,10 +79,6 @@ function createMainWindow() {
     mainWindow.on('closed', () => {
       mainWindow = null;
     });
-
-    if (process.env.NODE_ENV === 'development') {
-      mainWindow.webContents.openDevTools({ mode: 'detach' });
-    }
   } else {
     mainWindow.focus();
   }
@@ -229,36 +227,6 @@ function showNotification(title, body) {
   new Notification({ title, body }).show();
 }
 
-// 一時停止ボタンのアイコン更新
-function updatePauseButtonIcon() {
-  mainWindow.webContents.executeJavaScript(`
-    try {
-      const pauseIcon = document.getElementById('pause-icon');
-      const playCircleIcon = document.getElementById('play-circle-icon');
-      if (!pauseIcon || !playCircleIcon) {
-        throw new Error('Required elements not found');
-      }
-      if (${isPaused}) {
-        console.log('Switching to play icon');
-        pauseIcon.style.display = 'none';
-        playCircleIcon.style.display = 'block';
-      } else {
-        console.log('Switching to pause icon');
-        pauseIcon.style.display = 'block';
-        playCircleIcon.style.display = 'none';
-      }
-      'JavaScript executed successfully.';
-    } catch (error) {
-      console.error('Error during icon switch:', error);
-      throw error;
-    }
-  `).then((result) => {
-    console.log(result);
-  }).catch((error) => {
-    console.error('Failed to execute JavaScript:', error);
-  });
-}
-
 // ストレッチファイルの読み込み
 function readStretchesFile() {
   try {
@@ -281,7 +249,7 @@ function loadSettings() {
   intervalsEnabled = settings.intervalsEnabled;
   intervalCount = settings.intervalCount;
   isAutoCalcEnabled = settings.isAutoCalcEnabled;
-  intervalTimes = settings.intervalTimes || []; // デフォルト値を空の配列に設定
+  intervalTimes = settings.intervalTimes || [];
 
   mainRemainingTime = mainTimerDefault;
   miniRemainingTime = miniTimerDefault;
@@ -292,16 +260,23 @@ function loadSettings() {
 // 設定の保存
 function saveSettings(settings) {
   store.set('settings', settings);
-  console.log('Settings saved successfully.');
+  console.log('Settings saved successfully:', settings);
   
-  // 保存された設定を反映するが、現在のタイマー値は変更しない
-  loadSettingsWithoutResettingTimer();
+  mainTimerDefault = settings.focusTime;
+  breakTimerDefault = settings.breakTime;
+  miniTimerDefault = settings.intervalTime;
+  intervalsEnabled = settings.intervalsEnabled;
+  intervalCount = settings.intervalCount;
+  isAutoCalcEnabled = settings.isAutoCalcEnabled;
+  intervalTimes = settings.intervalTimes;
+
+  mainRemainingTime = mainTimerDefault;
+  miniRemainingTime = miniTimerDefault;
+  updateTimerDisplay();
 }
 
-// 新しい関数: タイマーをリセットせずに設定を読み込む
-function loadSettingsWithoutResettingTimer() {
-  const settings = store.get('settings', defaultSettings);
-  
+// タイマーをリセットせずに設定を読み込む
+function loadSettingsWithoutResettingTimer(settings) {
   mainTimerDefault = settings.focusTime;
   breakTimerDefault = settings.breakTime;
   miniTimerDefault = settings.intervalTime;
@@ -310,8 +285,6 @@ function loadSettingsWithoutResettingTimer() {
   isAutoCalcEnabled = settings.isAutoCalcEnabled;
   intervalTimes = settings.intervalTimes || [];
 
-  // タイマーの現在値は変更しない
-  
   updateTimerDisplay();
 }
 
@@ -351,18 +324,15 @@ ipcMain.on("start-break-timer", () => {
   startMainTimer();
 });
 
-// pause-timer イベントハンドラーを修正
 ipcMain.on("pause-timer", () => {
   isPaused = !isPaused;
   if (isPaused) {
-    // タイマーを一時停止
     clearInterval(mainTimerId);
     clearInterval(miniTimerId);
     pausedMainRemainingTime = mainRemainingTime;
     pausedMiniRemainingTime = miniRemainingTime;
     console.log("Timer paused. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
   } else {
-    // タイマーを再開
     console.log("Resuming timer. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
     mainRemainingTime = pausedMainRemainingTime;
     miniRemainingTime = pausedMiniRemainingTime;
@@ -373,20 +343,10 @@ ipcMain.on("pause-timer", () => {
     }
   }
   mainWindow.webContents.send("timer-paused", isPaused);
-  updatePauseButtonIcon();
   updateTimerDisplay();
 });
 
-
-ipcMain.on("stop-timer", () => {
-  console.log("stop-timerのmain処理");
-  clearInterval(mainTimerId);
-  clearInterval(miniTimerId);
-  mainRemainingTime = mainTimerDefault;
-  miniRemainingTime = miniTimerDefault;
-  currentTimerType = "main";
-  updateTimerDisplay();
-});
+ipcMain.on("stop-timer", stopTimer);
 
 ipcMain.on('show-stretch', () => {
   createStretchWindow();
@@ -396,33 +356,6 @@ ipcMain.on('show-stretch', () => {
   } catch (error) {
     console.error('Error displaying stretches:', error);
   }
-});
-
-ipcMain.on('update-timer-settings', (event, type, seconds) => {
-  console.log(`Updating ${type} timer to ${seconds} seconds`);
-  switch(type) {
-    case 'focusTime':
-      mainTimerDefault = seconds;
-      if (currentTimerType === 'main' && !isPaused) mainRemainingTime = seconds;
-      break;
-    case 'breakTime':
-      breakTimerDefault = seconds;
-      if (currentTimerType === 'break' && !isPaused) mainRemainingTime = seconds;
-      break;
-    case 'intervalTime':
-      miniTimerDefault = seconds;
-      if (currentTimerType === 'mini' && !isPaused) miniRemainingTime = seconds;
-      break;
-  }
-  saveSettings({
-    focusTime: mainTimerDefault,
-    breakTime: breakTimerDefault,
-    intervalTime: miniTimerDefault,
-    intervalsEnabled,
-    intervalCount,
-    intervalTimes
-  });
-  updateTimerDisplay();
 });
 
 ipcMain.on('update-interval-settings', (event, enabled, count, intervals) => {
@@ -437,7 +370,8 @@ ipcMain.on('update-interval-settings', (event, enabled, count, intervals) => {
     intervalTime: miniTimerDefault,
     intervalsEnabled,
     intervalCount,
-    intervalTimes
+    intervalTimes,
+    isAutoCalcEnabled
   });
 });
 
@@ -458,7 +392,6 @@ ipcMain.handle('update-settings', async (event, settings) => {
   return true;
 });
 
-ipcMain.on("stop-timer", stopTimer);
 ipcMain.on("pause-resume-timer", pauseResumeTimer);
 
 // アプリケーションのイベントハンドラー
@@ -482,4 +415,8 @@ app.on('activate', () => {
 
 ipcMain.on('show-notification', (event, title, body) => {
   new Notification({ title, body }).show();
+});
+
+ipcMain.handle('get-settings', () => {
+  return store.get('settings', defaultSettings);
 });
