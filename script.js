@@ -27,6 +27,7 @@ async function initializeApp() {
     initializeTimerDisplay();
     await loadCurrentSettings();
     initializeIntervalControls();
+    initializeIntervalCountControls();
     initializeTimerSettings();
     initializeBackButton();
     initializeTabs();
@@ -321,16 +322,33 @@ function incrementHandler() {
 
 // インターバル数の更新
 function updateIntervalCount(change) {
-    const newCount = Math.min(Math.max(intervalCount + change, 1), 10);
-    if (newCount !== intervalCount) {
-      intervalCount = newCount;
+  const newCount = Math.min(Math.max(appSettings.intervalCount + change, 1), 10);
+  if (newCount !== appSettings.intervalCount) {
+      appSettings.intervalCount = newCount;
       updateDisplay();
       updateButtonColors();
-      if (isAutoCalcEnabled) {
-        recalculateIntervals();
+      if (appSettings.isAutoCalcEnabled) {
+          recalculateIntervals();
       }
       saveSettings();
-    }
+  }
+}
+
+function initializeIntervalCountControls() {
+  const decrementButton = document.querySelector('.number-input .decrement');
+  const incrementButton = document.querySelector('.number-input .increment');
+
+  if (decrementButton) {
+      decrementButton.addEventListener('click', decrementHandler);
+  } else {
+      console.error('Decrement button not found');
+  }
+
+  if (incrementButton) {
+      incrementButton.addEventListener('click', incrementHandler);
+  } else {
+      console.error('Increment button not found');
+  }
 }
 
 // ボタンの色更新
@@ -392,26 +410,14 @@ function getIntervalTimesFromUI() {
 
 // 設定の保存
 async function saveSettings() {
-    try {
-      const settings = {
-        focusTime: getTimeInSeconds(document.getElementById('focus-time-minutes'), document.getElementById('focus-time-seconds')),
-        breakTime: getTimeInSeconds(document.getElementById('break-time-minutes'), document.getElementById('break-time-seconds')),
-        intervalTime: getTimeInSeconds(document.getElementById('interval-time-minutes'), document.getElementById('interval-time-seconds')),
-        intervalsEnabled: isIntervalsEnabled,
-        intervalCount: intervalCount,
-        isAutoCalcEnabled: isAutoCalcEnabled,
-        intervalTimes: getIntervalTimes()
-      };
-  
-      const success = await window.electronAPI.saveSettings(settings);
-      if (success) {
-        console.log('Settings saved successfully:', settings);
-      } else {
-        console.error('Failed to save settings');
-      }
-    } catch (error) {
+  try {
+      const updatedSettings = await window.electronAPI.saveSettings(appSettings);
+      appSettings = updatedSettings;
+      updateUIFromSettings();
+      console.log('Settings saved successfully:', updatedSettings);
+  } catch (error) {
       console.error('Failed to save settings:', error);
-    }
+  }
 }
 
 // 設定の読み込み
@@ -553,11 +559,12 @@ function handleAutoCalcToggle(event) {
 
 // 表示の更新
 function updateDisplay() {
-    const countDisplay = document.getElementById("interval-count-display");
-    if (countDisplay) {
-      countDisplay.textContent = intervalCount;
-    }
-    updateIntervalList();
+  const countDisplay = document.getElementById("interval-count-display");
+  if (countDisplay) {
+      countDisplay.textContent = appSettings.intervalCount;
+  }
+  updateIntervalList();
+  updateButtonColors();
 }
 
 // タイマー設定の初期化
