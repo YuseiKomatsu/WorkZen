@@ -397,11 +397,11 @@ function updateIntervalList() {
   intervalList.innerHTML = "";
 
   if (!appSettings.intervalsEnabled) {
-      intervalList.style.display = 'none';
+      intervalList.style.visibility = 'hidden';
       return;
   }
 
-  intervalList.style.display = 'block';
+  intervalList.style.visibility = 'visible';
 
   let intervalTimes = appSettings.intervalTimes || [];
   if (appSettings.isAutoCalcEnabled || !Array.isArray(intervalTimes) || intervalTimes.length === 0) {
