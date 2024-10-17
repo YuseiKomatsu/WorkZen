@@ -575,6 +575,73 @@ function initializeTimerSettings() {
       input.addEventListener("focus", handleTimeFocus);
       input.addEventListener("blur", handleTimeBlur);
     });
+
+    // フォーカス時間の入力フィールドにイベントリスナーを追加
+    const focusTimeInputs = document.querySelectorAll("#focus-time-minutes, #focus-time-seconds");
+    focusTimeInputs.forEach(input => {
+        input.addEventListener("blur", handleFocusTimeBlur);
+    });
+
+    // ブレイク時間の入力フィールドにイベントリスナーを追加
+    const breakTimeInputs = document.querySelectorAll("#break-time-minutes, #break-time-seconds");
+    breakTimeInputs.forEach(input => {
+        input.addEventListener("blur", handleBreakTimeBlur);
+    });
+
+    // インターバル時間の入力フィールドにイベントリスナーを追加
+    const intervalTimeInputs = document.querySelectorAll("#interval-time-minutes, #interval-time-seconds");
+    intervalTimeInputs.forEach(input => {
+        input.addEventListener("blur", handleIntervalTimeBlur);
+    });
+
+     // インターバルアイテムの時間入力フィールドにイベントリスナーを追加
+     document.getElementById('interval-list').addEventListener('blur', handleIntervalItemBlur, true);
+}
+
+function handleFocusTimeBlur() {
+    const minutes = parseInt(document.getElementById("focus-time-minutes").value, 10) || 0;
+    const seconds = parseInt(document.getElementById("focus-time-seconds").value, 10) || 0;
+    appSettings.focusTime = minutes * 60 + seconds;
+    updateSettings();
+}
+
+function handleBreakTimeBlur() {
+    const minutes = parseInt(document.getElementById("break-time-minutes").value, 10) || 0;
+    const seconds = parseInt(document.getElementById("break-time-seconds").value, 10) || 0;
+    appSettings.breakTime = minutes * 60 + seconds;
+    updateSettings();
+}
+
+function handleIntervalTimeBlur() {
+    const minutes = parseInt(document.getElementById("interval-time-minutes").value, 10) || 0;
+    const seconds = parseInt(document.getElementById("interval-time-seconds").value, 10) || 0;
+    appSettings.intervalTime = minutes * 60 + seconds;
+    updateSettings();
+}
+
+function handleMainIntervalTimeBlur() {
+  const minutes = parseInt(document.getElementById("interval-time-minutes").value, 10) || 0;
+  const seconds = parseInt(document.getElementById("interval-time-seconds").value, 10) || 0;
+  appSettings.intervalTime = minutes * 60 + seconds;
+  updateSettings();
+}
+
+function handleIntervalItemBlur(event) {
+  if (event.target.classList.contains('time-input')) {
+      const intervalItem = event.target.closest('.interval-item');
+      if (intervalItem) {
+          const inputs = intervalItem.querySelectorAll('.time-input');
+          const minutes = parseInt(inputs[0].value, 10) || 0;
+          const seconds = parseInt(inputs[1].value, 10) || 0;
+          const totalSeconds = minutes * 60 + seconds;
+
+          const index = Array.from(intervalItem.parentNode.children).indexOf(intervalItem);
+          if (index !== -1) {
+              appSettings.intervalTimes[index] = totalSeconds;
+              updateSettings();
+          }
+      }
+  }
 }
 
 // 時間入力の処理
@@ -722,9 +789,16 @@ function handleTimeFocus(event) {
 
 // 時間入力ブラー時の処理
 function handleTimeBlur(event) {
-    let value = event.target.value.replace(/[^\d]/g, "");
-    event.target.value = value.padStart(2, "0");
-    saveSettings();
+  let value = event.target.value.replace(/[^\d]/g, "");
+  event.target.value = value.padStart(2, "0");
+
+  if (event.target.closest("#focus-time-minutes, #focus-time-seconds")) {
+      handleFocusTimeBlur();
+  } else if (event.target.closest("#break-time-minutes, #break-time-seconds")) {
+      handleBreakTimeBlur();
+  } else if (event.target.closest("#interval-time-minutes, #interval-time-seconds")) {
+      handleMainIntervalTimeBlur();
+  }
 }
 
 // Auto Calc スイッチのイベントリスナーを設定
