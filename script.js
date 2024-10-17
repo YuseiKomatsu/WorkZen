@@ -178,6 +178,7 @@ stopButton.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
     updateMainScreenDisplay();
+    initializeNavigation();
 });
 
 // タブの初期化
@@ -245,11 +246,11 @@ function initializeNavigation() {
 
 // アクティブなナビゲーションボタンの設定
 function setActiveNavButton(activeButton, allButtons) {
-    allButtons.forEach((button) => {
-      button.classList.toggle("active", button === activeButton);
+    allButtons.forEach(button => {
+      button.classList.toggle('active', button === activeButton);
       button.style.color = button === activeButton ? "#FFFFFF" : "#6C757D";
     });
-}
+  }
 
 // 設定コンテンツの表示
 function showSettingsContent(targetId, allContents) {
@@ -258,13 +259,12 @@ function showSettingsContent(targetId, allContents) {
     });
 }
 
-function updateNavIcons() {
+function updateNavIcons(activeContentId) {
     const timerSettingsIcon = document.querySelector('.nav-icons [data-target="timer-settings"] svg');
     const windowSettingsIcon = document.querySelector('.nav-icons [data-target="window-settings"] svg');
-    const activeContent = document.querySelector('.settings-content:not(.hidden)');
   
-    if (activeContent) {
-      if (activeContent.id === 'timer-settings') {
+    if (timerSettingsIcon && windowSettingsIcon) {
+      if (activeContentId === 'timer-settings') {
         timerSettingsIcon.style.fill = '#FFFFFF';
         windowSettingsIcon.style.fill = '#6C757D';
       } else {
@@ -272,7 +272,29 @@ function updateNavIcons() {
         windowSettingsIcon.style.fill = '#FFFFFF';
       }
     }
-}
+  }  
+
+function initializeNavigation() {
+    const navButtons = document.querySelectorAll('.nav-button');
+    const settingsContents = document.querySelectorAll('.settings-content');
+  
+    navButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        setActiveNavButton(button, navButtons);
+        showSettingsContent(targetId, settingsContents);
+        updateNavIcons(targetId);
+      });
+    });
+  
+    // 初期状態でタイマー設定を選択状態にする
+    const initialButton = document.querySelector('.nav-button[data-target="timer-settings"]');
+    if (initialButton) {
+      setActiveNavButton(initialButton, navButtons);
+      showSettingsContent('timer-settings', settingsContents);
+      updateNavIcons('timer-settings');
+    }
+  }
 
 // 戻るボタンの初期化
 function initializeBackButton() {
