@@ -187,8 +187,8 @@ function stopTimer() {
   clearInterval(miniTimerId);
   isTimerRunning = false;
   isPaused = false;
-  mainRemainingTime = settings.mainTimerDefault;
-  miniRemainingTime = settings.miniTimerDefault;
+  mainRemainingTime = settings.focusTime;
+  miniRemainingTime = settings.intervalTime;
   currentTimerType = "main";
   updateTimerDisplay();
   updatePauseResumeButton();
@@ -348,7 +348,10 @@ ipcMain.on("pause-timer", () => {
   updateTimerDisplay();
 });
 
-ipcMain.on("stop-timer", stopTimer);
+ipcMain.on("stop-timer", () => {
+  stopTimer();
+  mainWindow.webContents.send("timer-stopped");
+});
 
 ipcMain.on('show-stretch', () => {
   createStretchWindow();

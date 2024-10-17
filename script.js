@@ -44,17 +44,17 @@ function initializeTimerDisplay() {
 
 // タイマー表示を更新する関数
 function updateTimerDisplay(mainTime, miniTime) {
-    console.log('Updating timer display:', mainTime, miniTime);
-    if (mainDisplay) {
-        mainDisplay.innerText = formatTime(mainTime);
-    } else {
-        console.error('Main display element not found');
-    }
-    if (miniDisplay) {
-        miniDisplay.innerText = formatTime(miniTime);
-    } else {
-        console.error('Mini display element not found');
-    }
+  console.log('Updating timer display:', mainTime, miniTime);
+  if (mainDisplay) {
+      mainDisplay.innerText = formatTime(mainTime);
+  } else {
+      console.error('Main display element not found');
+  }
+  if (miniDisplay) {
+      miniDisplay.innerText = formatTime(miniTime);
+  } else {
+      console.error('Mini display element not found');
+  }
 }
 
 async function updateMainScreenDisplay() {
@@ -127,8 +127,8 @@ function updatePauseResumeButton(isPaused, isTimerRunning) {
 
 // メインプロセスからタイマー更新情報を受け取った際の処理
 window.electronAPI.updateTimer((data) => {
-    console.log('Received timer update:', data);
-    updateTimerDisplay(data.mainRemainingTime, data.miniRemainingTime);
+  console.log('Received timer update:', data);
+  updateTimerDisplay(data.mainRemainingTime, data.miniRemainingTime);
 });
 
 // ボタンのクリックイベントリスナー
@@ -160,6 +160,18 @@ window.electronAPI.onTimerPaused((isPaused) => {
 
 window.electronAPI.onUpdatePauseResumeButton((isPaused, isTimerRunning) => {
     updatePauseResumeButton(isPaused, isTimerRunning);
+});
+
+// タイマーが停止されたときの処理を追加
+window.electronAPI.onTimerStopped(() => {
+  console.log('Timer stopped');
+  updateMainScreenDisplay();
+});
+
+// ボタンのクリックイベントリスナー
+stopButton.addEventListener('click', () => {
+  console.log('Stop button clicked');
+  window.electronAPI.stopTimer();
 });
 
 // アプリケーションの初期化

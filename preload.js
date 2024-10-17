@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onTimerPaused: (callback) => {
         ipcRenderer.on('timer-paused', (event, isPaused) => callback(isPaused));
     },
+    onTimerStopped: (callback) => {
+        ipcRenderer.on('timer-stopped', () => callback());
+    },
     onUpdatePauseResumeButton: (callback) => {
         ipcRenderer.on('update-pause-resume-button', (event, isPaused, isTimerRunning) => callback(isPaused, isTimerRunning));
     },
