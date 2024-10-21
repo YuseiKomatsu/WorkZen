@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, Notification, screen } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
-
 const store = new Store();
 
 // 設定のデフォルト値
@@ -41,7 +40,7 @@ let pausedMainRemainingTime = 0;
 let pausedMiniRemainingTime = 0;
 
 // インターバル設定
-let intervalsEnabled = false;
+let intervalsEnabled = true;
 let intervalCount = 2;
 let intervalTimes = [];
 
@@ -124,18 +123,18 @@ function updateTimerDisplay() {
 function startMainTimer() {
   const settings = loadSettings();
   clearInterval(mainTimerId);
-  console.log(`Starting main timer. intervalsEnabled: ${intervalsEnabled}, intervalCount: ${intervalCount}`);
-  console.log(`Interval times: ${JSON.stringify(intervalTimes)}`);
+  console.log(`Starting main timer. intervalsEnabled: ${settings.intervalsEnabled}, intervalCount: ${settings.intervalCount}`);
+  console.log(`Interval times: ${JSON.stringify(settings.intervalTimes)}`);
   
   mainTimerId = setInterval(() => {
     if (!isPaused) {
       if (mainRemainingTime > 0) {
         mainRemainingTime--;
         
-        if (intervalsEnabled && currentTimerType === "main" && Array.isArray(intervalTimes)) {
+        if (settings.intervalsEnabled && currentTimerType === "main" && Array.isArray(settings.intervalTimes)) {
           console.log(`Current remaining time: ${mainRemainingTime}`);
           
-          const matchingIntervalIndex = intervalTimes.findIndex(time => time === mainRemainingTime);
+          const matchingIntervalIndex = settings.intervalTimes.findIndex(time => time === mainRemainingTime);
           if (matchingIntervalIndex !== -1) {
             console.log(`Interval match found for interval ${matchingIntervalIndex + 1}`);
             startMiniTimer();
@@ -152,33 +151,33 @@ function startMainTimer() {
     }
   }, 1000);
   isTimerRunning = true;
-  updatePauseResumeButton();
+
 }
 
 // ミニタイマーの開始
 function startMiniTimer() {
   const settings = loadSettings();
   currentTimerType = "mini";
-  if (miniRemainingTime === 0) {
-    miniRemainingTime = settings.miniTimerDefault;
-  }
+  console.log('Mini timer started!');
   clearInterval(miniTimerId);
   miniTimerId = setInterval(() => {
     if (!isPaused) {
       if (miniRemainingTime > 0) {
         miniRemainingTime--;
+        updateTimerDisplay();
         if (miniRemainingTime === 0) {
           console.log("ミニタイマー終了");
           showNotification('Back to focus!', 'Mini break is over. Let\'s get back to work!');
+          miniRemainingTime = settings.intervalTime;
           currentTimerType = "main";
           clearInterval(miniTimerId);
+          updateTimerDisplay();
         }
       }
-      updateTimerDisplay();
     }
   }, 1000);
   isTimerRunning = true;
-  updatePauseResumeButton();
+  updateTimerDisplay();    
 }
 
 function stopTimer() {
@@ -191,29 +190,8 @@ function stopTimer() {
   miniRemainingTime = settings.intervalTime;
   currentTimerType = "main";
   updateTimerDisplay();
-  updatePauseResumeButton();
 }
 
-function pauseResumeTimer() {
-  isPaused = !isPaused;
-  if (isPaused) {
-    clearInterval(mainTimerId);
-    clearInterval(miniTimerId);
-  } else {
-    if (currentTimerType === "main" || currentTimerType === "break") {
-      startMainTimer();
-    } else if (currentTimerType === "mini") {
-      startMiniTimer();
-    }
-  }
-  updatePauseResumeButton();
-}
-
-function updatePauseResumeButton() {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send("update-pause-resume-button", isPaused, isTimerRunning);
-  }
-}
 
 // タイマー完了時の処理
 function handleTimerCompletion() {
@@ -392,8 +370,6 @@ ipcMain.handle('update-settings', async (event, settings) => {
   loadSettingsWithoutResettingTimer(settings);
   return true;
 });
-
-ipcMain.on("pause-resume-timer", pauseResumeTimer);
 
 // アプリケーションのイベントハンドラー
 app.whenReady().then(() => {

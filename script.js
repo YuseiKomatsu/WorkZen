@@ -17,6 +17,14 @@ const stopButton = document.getElementById('stop-timer');
 const pauseButton = document.getElementById('pause-button');
 const resumeButton = document.getElementById('resume-button');
 const breakButton = document.getElementById('break-timer');
+
+const settingsIcon = document.querySelector(".setting-toggle");
+const backButton = document.getElementById("back-button");
+const mainWrapper = document.getElementById("main-wrapper");
+const settingWrapper = document.getElementById("setting-wrapper");
+
+const enableIntervalsSwitch = document.getElementById('enable-intervals');
+const countDisplay = document.getElementById("interval-count-display");
 const autoCalcSwitch = document.getElementById('auto-calc-switch');
 
 let isIntervalsEnabled = true;
@@ -75,14 +83,7 @@ breakButton.addEventListener('click', () => {
   window.electronAPI.startBreakTimer();
 });
 
-stopButton.addEventListener('click', () => {
-console.log('Stop button clicked');
-window.electronAPI.stopTimer();
-});
-
-if (autoCalcSwitch) {
-    autoCalcSwitch.addEventListener("change", handleAutoCalcToggle);
-}
+autoCalcSwitch.addEventListener("change", handleAutoCalcToggle);
 
 // window.electronAPIを通じて受け取る処理結果は「下り」（メインプロセスからレンダラーへ）
 
@@ -284,9 +285,6 @@ function initializeNavigation() {
 
 // 戻るボタンの初期化
 function initializeBackButton() {
-    const backButton = document.getElementById("back-button");
-    const mainWrapper = document.getElementById("main-wrapper");
-    const settingWrapper = document.getElementById("setting-wrapper");
   
     if (backButton) {
       backButton.addEventListener("click", () => {
@@ -295,7 +293,6 @@ function initializeBackButton() {
       });
     }
   
-    const settingsIcon = document.querySelector(".setting-toggle");
     if (settingsIcon) {
       settingsIcon.addEventListener("click", () => {
         mainWrapper.classList.add("hidden");
@@ -306,10 +303,6 @@ function initializeBackButton() {
 
 // インターバル制御の初期化
 function initializeIntervalControls() {
-    const enableIntervalsSwitch = document.getElementById('enable-intervals');
-    const autoCalcSwitch = document.getElementById('auto-calc-switch');
-    const countDisplay = document.getElementById("interval-count-display");
-
     if (countDisplay) {
         countDisplay.textContent = appSettings.intervalCount;
     }
@@ -525,13 +518,8 @@ function updateUIFromSettings() {
     updateTimerInputs("break-time", appSettings.breakTime);
     updateTimerInputs("interval-time", appSettings.intervalTime);
 
-    const enableIntervalsSwitch = document.getElementById('enable-intervals');
-    if (enableIntervalsSwitch) {
-        enableIntervalsSwitch.checked = appSettings.intervalsEnabled;
-    }
-
+    updateEnableIntervalsSwitch()
     updateAutoCalcSwitch();
-
     updateIntervalList();
     updateDisplay();
 }
@@ -561,23 +549,6 @@ function updateIntervalTimes(intervalTimes) {
         inputs[1].value = (time % 60).toString().padStart(2, "0");
       }
     });
-}
-
-// スイッチの更新
-function updateSwitches() {
-    const enableIntervalsSwitch = document.querySelector(
-      '.setting:first-child input[type="checkbox"]'
-    );
-    if (enableIntervalsSwitch) {
-      enableIntervalsSwitch.checked = isIntervalsEnabled;
-    }
-  
-    const autoCalcSwitch = document.querySelector(
-      '.setting:nth-child(4) input[type="checkbox"]'
-    );
-    if (autoCalcSwitch) {
-      autoCalcSwitch.checked = isAutoCalcEnabled;
-    }
 }
 
 function handleAutoCalcToggle(event) {
@@ -689,8 +660,13 @@ function handleIntervalItemBlur(arg) {
     }
 }
 
+function updateEnableIntervalsSwitch() {
+  if (enableIntervalsSwitch) {
+      enableIntervalsSwitch.checked = appSettings.intervalsEnabled;
+  }
+}
+
 function updateAutoCalcSwitch() {
-    const autoCalcSwitch = document.getElementById('auto-calc-switch');
     if (autoCalcSwitch) {
         autoCalcSwitch.checked = appSettings.isAutoCalcEnabled;
     }
