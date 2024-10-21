@@ -29,16 +29,20 @@
       <div id="timer-display"></div>
       <div id="timer-display-mini"></div>
       <button id="start-timer" class="btn3d">Start</button>
-      <button id="pause-timer">
-        <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-          <path
-            d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm-32 288h-32V176h32zm96 0h-32V176h32z" />
-        </svg>
-        <svg id="play-circle-icon" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-          <path
-            d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm74.77 217.3l-114.45 69.14a10.78 10.78 0 01-16.32-9.31V186.87a10.78 10.78 0 0116.32-9.31l114.45 69.14a10.89 10.89 0 010 18.6z" />
-        </svg>
-      </button>
+      <div id="pause-resume-container">
+        <div id="pause-button">
+          <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+            <path
+              d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm-32 288h-32V176h32zm96 0h-32V176h32z" />
+          </svg>
+        </div>
+        <div id="resume-button" class="hidden">
+          <svg id="play-circle-icon" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+            <path
+              d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm74.77 217.3l-114.45 69.14a10.78 10.78 0 01-16.32-9.31V186.87a10.78 10.78 0 0116.32-9.31l114.45 69.14a10.89 10.89 0 010 18.6z" />
+          </svg>
+        </div>
+      </div>
       <button id="stop-timer">
         <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
           <path
@@ -103,17 +107,21 @@
             <div class="time-setting">
               <label for="focus-time" class="time-label">Focus Time</label>
               <div class="time-input-container">
-                <input type="text" id="focus-time-minutes" class="time-input minutes" value="52" inputmode="numeric" pattern="[0-9]*" maxlength="2" />
+                <input type="text" id="focus-time-minutes" class="time-input minutes" value="52" inputmode="numeric"
+                  pattern="[0-9]*" maxlength="2" />
                 <span class="time-separator">:</span>
-                <input type="text" id="focus-time-seconds" class="time-input seconds" value="00" inputmode="numeric" pattern="[0-9]*" maxlength="2" />
+                <input type="text" id="focus-time-seconds" class="time-input seconds" value="00" inputmode="numeric"
+                  pattern="[0-9]*" maxlength="2" />
               </div>
             </div>
             <div class="time-setting">
               <label for="break-time" class="time-label">Break Time</label>
               <div class="time-input-container">
-                <input type="text" id="break-time-minutes" class="time-input minutes" value="17" inputmode="numeric" pattern="[0-9]*" maxlength="2" />
+                <input type="text" id="break-time-minutes" class="time-input minutes" value="17" inputmode="numeric"
+                  pattern="[0-9]*" maxlength="2" />
                 <span class="time-separator">:</span>
-                <input type="text" id="break-time-seconds" class="time-input seconds" value="00" inputmode="numeric" pattern="[0-9]*" maxlength="2" />
+                <input type="text" id="break-time-seconds" class="time-input seconds" value="00" inputmode="numeric"
+                  pattern="[0-9]*" maxlength="2" />
               </div>
             </div>
           </div>
@@ -132,9 +140,11 @@
             <div class="setting">
               <label for="interval-time">Interval Time</label>
               <div class="time-input-container interval-time-input-container">
-                <input id="interval-time-minutes" type="text" class="time-input interval-time-input minutes" maxlength="2" value="05">
+                <input id="interval-time-minutes" type="text" class="time-input interval-time-input minutes"
+                  maxlength="2" value="05">
                 <span class="time-separator">:</span>
-                <input type="text" id="interval-time-seconds" class="time-input interval-time-input seconds" maxlength="2" value="00">
+                <input type="text" id="interval-time-seconds" class="time-input interval-time-input seconds"
+                  maxlength="2" value="00">
               </div>
             </div>
 

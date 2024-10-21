@@ -14,8 +14,10 @@ const mainDisplay = document.getElementById('timer-display');
 const miniDisplay = document.getElementById('timer-display-mini');
 const startButton = document.getElementById('start-timer');
 const stopButton = document.getElementById('stop-timer');
-const pauseButton = document.getElementById('pause-timer');
+const pauseButton = document.getElementById('pause-button');
+const resumeButton = document.getElementById('resume-button');
 const breakButton = document.getElementById('break-timer');
+const autoCalcSwitch = document.getElementById('auto-calc-switch');
 
 let isIntervalsEnabled = true;
 let intervalCount = 2;
@@ -37,6 +39,74 @@ async function initializeApp() {
     await loadSettings();
     updateUIFromSettings();
 }
+
+// アプリケーションの初期化
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp();
+  updateMainScreenDisplay();
+  initializeNavigation();
+});
+
+// ボタンのクリックイベントリスナー 
+// addEventListenerで捉えるUI操作は「上り」（レンダラーからメインプロセスへ）
+
+startButton.addEventListener('click', () => {
+  console.log('Start button clicked');
+  window.electronAPI.startMainTimer();
+});
+
+stopButton.addEventListener('click', () => {
+  console.log('Stop button clicked');
+  window.electronAPI.stopTimer();
+});
+
+pauseButton.addEventListener('click', () => {
+  console.log('Pause button clicked');
+  window.electronAPI.pauseTimer();
+});
+
+resumeButton.addEventListener('click', () => {
+  console.log('Resume button clicked');
+  window.electronAPI.resumeTimer();
+});
+
+breakButton.addEventListener('click', () => {
+  console.log('Break button clicked');
+  window.electronAPI.startBreakTimer();
+});
+
+stopButton.addEventListener('click', () => {
+console.log('Stop button clicked');
+window.electronAPI.stopTimer();
+});
+
+if (autoCalcSwitch) {
+    autoCalcSwitch.addEventListener("change", handleAutoCalcToggle);
+}
+
+// window.electronAPIを通じて受け取る処理結果は「下り」（メインプロセスからレンダラーへ）
+
+// タイマーが停止されたときの処理を追加
+window.electronAPI.onTimerStopped((isPaused) => {
+console.log('Timer stopped');
+updateMainScreenDisplay();
+});
+
+window.electronAPI.onTimerPaused((isPaused) => {
+  console.log('Timer paused');
+  togglePauseResumeButton(isPaused);
+});
+
+window.electronAPI.onTimerResumed((isPaused) => {
+  console.log('Timer resumeed');
+  togglePauseResumeButton(isPaused);
+});
+
+// メインプロセスからタイマー更新情報を受け取った際の処理
+window.electronAPI.updateTimer((data) => {
+console.log('Received timer update:', data);
+updateTimerDisplay(data.mainRemainingTime, data.miniRemainingTime);
+});
 
 // タイマー表示を初期化する関数
 function initializeTimerDisplay() {
@@ -91,96 +161,11 @@ async function fetchStretches() {
     }
 }
 
-function updatePauseButtonUI(isPaused) {
-    const pauseIcon = document.getElementById('pause-icon');
-    const playCircleIcon = document.getElementById('play-circle-icon');
-    
-    if (pauseIcon && playCircleIcon) {
-        if (isPaused) {
-            pauseIcon.style.display = 'none';
-            playCircleIcon.style.display = 'block';
-        } else {
-            pauseIcon.style.display = 'block';
-            playCircleIcon.style.display = 'none';
-        }
-    } else {
-        console.error('Pause or play icon elements not found');
-    }
+function togglePauseResumeButton(isPaused) {
+  console.log('Toggle pause resume button');
+  pauseButton.classList.toggle('hidden', isPaused);
+  resumeButton.classList.toggle('hidden', !isPaused);
 }
-
-function updatePauseResumeButton(isPaused, isTimerRunning) {
-    const pauseIcon = document.getElementById('pause-icon');
-    const playCircleIcon = document.getElementById('play-circle-icon');
-    
-    if (isTimerRunning) {
-        if (isPaused) {
-            pauseIcon.style.display = 'none';
-            playCircleIcon.style.display = 'block';
-        } else {
-            pauseIcon.style.display = 'block';
-            playCircleIcon.style.display = 'none';
-        }
-    } else {
-        pauseIcon.style.display = 'block';
-        playCircleIcon.style.display = 'none';
-    }
-}
-
-// メインプロセスからタイマー更新情報を受け取った際の処理
-window.electronAPI.updateTimer((data) => {
-  console.log('Received timer update:', data);
-  updateTimerDisplay(data.mainRemainingTime, data.miniRemainingTime);
-});
-
-// ボタンのクリックイベントリスナー
-startButton.addEventListener('click', () => {
-    console.log('Start button clicked');
-    window.electronAPI.startMainTimer();
-});
-
-stopButton.addEventListener('click', () => {
-    console.log('Stop button clicked');
-    window.electronAPI.stopTimer();
-});
-
-pauseButton.addEventListener('click', () => {
-    console.log('Pause button clicked');
-    window.electronAPI.pauseTimer();
-});
-
-breakButton.addEventListener('click', () => {
-    console.log('Break button clicked');
-    window.electronAPI.startBreakTimer();
-});
-
-// タイマーの一時停止状態を監視
-window.electronAPI.onTimerPaused((isPaused) => {
-    console.log('Timer paused state:', isPaused);
-    updatePauseButtonUI(isPaused);
-});
-
-window.electronAPI.onUpdatePauseResumeButton((isPaused, isTimerRunning) => {
-    updatePauseResumeButton(isPaused, isTimerRunning);
-});
-
-// タイマーが停止されたときの処理を追加
-window.electronAPI.onTimerStopped(() => {
-  console.log('Timer stopped');
-  updateMainScreenDisplay();
-});
-
-// ボタンのクリックイベントリスナー
-stopButton.addEventListener('click', () => {
-  console.log('Stop button clicked');
-  window.electronAPI.stopTimer();
-});
-
-// アプリケーションの初期化
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    updateMainScreenDisplay();
-    initializeNavigation();
-});
 
 // タブの初期化
 function initializeTabs() {
@@ -918,11 +903,5 @@ function handleTimeBlur(event) {
     let value = event.target.value.replace(/[^\d]/g, "");
     event.target.value = value.padStart(2, "0");
   }
-
-// Auto Calc スイッチのイベントリスナーを設定
-const autoCalcSwitch = document.getElementById('auto-calc-switch');
-if (autoCalcSwitch) {
-    autoCalcSwitch.addEventListener("change", handleAutoCalcToggle);
-}
 
 console.log('script.js loaded');

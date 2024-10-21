@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     startMiniTimer: () => ipcRenderer.send('start-mini-timer'),
     stopTimer: () => ipcRenderer.send('stop-timer'),
     pauseTimer: () => ipcRenderer.send('pause-timer'),
+    resumeTimer: () => ipcRenderer.send('resume-timer'),
+
 
     // タイマー更新とイベント
     updateTimer: (callback) => {
@@ -23,11 +25,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onTimerPaused: (callback) => {
         ipcRenderer.on('timer-paused', (event, isPaused) => callback(isPaused));
     },
+    onTimerResumed: (callback) =>{
+        ipcRenderer.on('timer-resumed', (event, isPaused) => callback(isPaused));
+    },
     onTimerStopped: (callback) => {
         ipcRenderer.on('timer-stopped', () => callback());
-    },
-    onUpdatePauseResumeButton: (callback) => {
-        ipcRenderer.on('update-pause-resume-button', (event, isPaused, isTimerRunning) => callback(isPaused, isTimerRunning));
     },
 
     // 通知

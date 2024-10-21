@@ -311,41 +311,42 @@ ipcMain.on("start-main-timer", () => {
 
 ipcMain.on("start-mini-timer", () => {
   const settings = loadSettings();
-  miniRemainingTime = settings.miniTimerDefault;
+  miniRemainingTime = settings.intervalTime;
   currentTimerType = "mini";
   startMiniTimer();
 });
 
 ipcMain.on("start-break-timer", () => {
   const settings = loadSettings();
-  mainRemainingTime = settings.breakTimerDefault;
-  miniRemainingTime = settings.miniTimerDefault;
+  mainRemainingTime = settings.breakTime;
+  miniRemainingTime = settings.intervalTime;
   isPaused = false;
   currentTimerType = "break";
   startMainTimer();
 });
 
 ipcMain.on("pause-timer", () => {
-  const settings = loadSettings();
-  isPaused = !isPaused;
-  if (isPaused) {
+  isPaused = true;
     clearInterval(mainTimerId);
     clearInterval(miniTimerId);
-    pausedMainRemainingTime = settings.mainRemainingTime;
-    pausedMiniRemainingTime = settings.miniRemainingTime;
+    pausedMainRemainingTime = mainRemainingTime;
+    pausedMiniRemainingTime = miniRemainingTime;
     console.log("Timer paused. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
-  } else {
-    console.log("Resuming timer. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
-    mainRemainingTime = settings.pausedMainRemainingTime;
-    miniRemainingTime = settings.pausedMiniRemainingTime;
+  mainWindow.webContents.send("timer-paused", isPaused);
+  updateTimerDisplay();
+});
+
+ipcMain.on("resume-timer", () => {
+  isPaused = false;
+  console.log("Resuming timer. Main:", pausedMainRemainingTime, "Mini:", pausedMiniRemainingTime);
+    mainRemainingTime = pausedMainRemainingTime;
+    miniRemainingTime = pausedMiniRemainingTime;
     if (currentTimerType === "main" || currentTimerType === "break") {
       startMainTimer();
     } else if (currentTimerType === "mini") {
       startMiniTimer();
     }
-  }
-  mainWindow.webContents.send("timer-paused", isPaused);
-  updateTimerDisplay();
+    mainWindow.webContents.send("timer-resumed", isPaused);
 });
 
 ipcMain.on("stop-timer", () => {
