@@ -72,9 +72,9 @@ function createMainWindow() {
 
     mainWindow.loadFile("index.html");
     
-    // if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
       mainWindow.webContents.openDevTools({ mode: 'detach' });
-    // }
+    }
 
     mainWindow.webContents.on('did-finish-load', () => {
       const settings = loadSettings();
