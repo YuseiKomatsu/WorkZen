@@ -11,7 +11,8 @@ const defaultSettings = {
   intervalsEnabled: true,
   intervalCount: 2,
   isAutoCalcEnabled: true,
-  intervalTimes: []
+  intervalTimes: [],
+  alwaysOnTop: false
 };
 
 // 開発環境での自動リロード設定
@@ -48,6 +49,8 @@ let intervalTimes = [];
 function createMainWindow() {
   if (mainWindow === null) {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    const settings = loadSettings();
+
     mainWindow = new BrowserWindow({
       width: 448,
       height: 212,
@@ -57,7 +60,7 @@ function createMainWindow() {
       frame: false,
       resizable: false,
       transparent: true,
-      alwaysOnTop: false,
+      alwaysOnTop: settings.alwaysOnTop,
       backgroundThrottling: false,
       webPreferences: {
         nodeIntegration: false,
@@ -222,6 +225,14 @@ function readStretchesFile() {
   }
 }
 
+function setAlwaysOnTop(value) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.setAlwaysOnTop(value);
+    store.set('alwaysOnTop', value);
+    console.log('Set always on top')
+  }
+}
+
 // 設定の読み込み
 function loadSettings() {
   const settings = store.get('settings', defaultSettings);
@@ -356,6 +367,7 @@ ipcMain.on('update-interval-settings', (event, enabled, count, intervals) => {
 ipcMain.handle('save-settings', async (event, settings) => {
   const updatedSettings = saveSettings(settings);
   mainWindow.webContents.send('settings-updated', updatedSettings);
+  setAlwaysOnTop(settings.alwaysOnTop);
   return updatedSettings;
 });
 
@@ -366,6 +378,10 @@ ipcMain.handle('get-current-timer-values', () => {
   };
 });
 
+ipcMain.on('set-always-on-top', (event, value) => {
+  setAlwaysOnTop(value);
+});
+
 ipcMain.handle('update-settings', async (event, settings) => {
   loadSettingsWithoutResettingTimer(settings);
   return true;
@@ -373,8 +389,9 @@ ipcMain.handle('update-settings', async (event, settings) => {
 
 // アプリケーションのイベントハンドラー
 app.whenReady().then(() => {
-  loadSettings();
+  const settings = loadSettings();
   createMainWindow();
+  setAlwaysOnTop(settings.alwaysOnTop);
 });
 
 app.on('window-all-closed', () => {

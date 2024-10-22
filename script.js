@@ -6,7 +6,8 @@ let appSettings = {
     intervalsEnabled: true,
     intervalCount: 2,
     isAutoCalcEnabled: true,
-    intervalTimes: []
+    intervalTimes: [],
+    alwaysOnTop: false,
 };
 
 // DOM要素の取得
@@ -27,6 +28,8 @@ const enableIntervalsSwitch = document.getElementById('enable-intervals');
 const countDisplay = document.getElementById("interval-count-display");
 const autoCalcSwitch = document.getElementById('auto-calc-switch');
 
+const alwaysOnTopToggle = document.getElementById('always-on-top-toggle');
+
 let isIntervalsEnabled = true;
 let intervalCount = 2;
 let isAutoCalcEnabled = true;
@@ -43,6 +46,7 @@ async function initializeApp() {
     initializeBackButton();
     initializeTabs();
     initializeNavigation();
+    initializeAlwaysOnTopToggle();
     fetchStretches();
     await loadSettings();
     updateUIFromSettings();
@@ -324,6 +328,18 @@ function initializeIntervalControls() {
     updateButtonColors();
 }
 
+// AlwaysOnTopトグルの初期化
+function initializeAlwaysOnTopToggle() {
+  const alwaysOnTopToggle = document.getElementById('always-on-top-toggle');
+  if (alwaysOnTopToggle) {
+    alwaysOnTopToggle.addEventListener('change', (event) => {
+      appSettings.alwaysOnTop = event.target.checked;
+      updateSettings();
+    });
+  }
+}
+
+
 // ハンドラー関数を定義
 function decrementHandler() {
     updateIntervalCount(-1);
@@ -453,6 +469,7 @@ async function loadSettings() {
         if (settings) {
             appSettings = { ...appSettings, ...settings };
             updateDisplay();
+            updateUIFromSettings();
         }
     } catch (error) {
         console.error("Failed to load settings:", error);
@@ -466,6 +483,7 @@ function updateSettings() {
       focusTime: getTimeInSeconds(document.getElementById('focus-time-minutes'), document.getElementById('focus-time-seconds')),
       breakTime: getTimeInSeconds(document.getElementById('break-time-minutes'), document.getElementById('break-time-seconds')),
       intervalTime: getTimeInSeconds(document.getElementById('interval-time-minutes'), document.getElementById('interval-time-seconds')),
+      alwaysOnTop: appSettings.alwaysOnTop,
   };
 
   if (settings.isAutoCalcEnabled) {
@@ -518,7 +536,8 @@ function updateUIFromSettings() {
     updateTimerInputs("break-time", appSettings.breakTime);
     updateTimerInputs("interval-time", appSettings.intervalTime);
 
-    updateEnableIntervalsSwitch()
+    updateEnableIntervalsSwitch();
+    updateAlwaysOnTopToggle();
     updateAutoCalcSwitch();
     updateIntervalList();
     updateDisplay();
@@ -670,6 +689,12 @@ function updateAutoCalcSwitch() {
     if (autoCalcSwitch) {
         autoCalcSwitch.checked = appSettings.isAutoCalcEnabled;
     }
+}
+
+function updateAlwaysOnTopToggle(){
+      if (alwaysOnTopToggle) {
+    alwaysOnTopToggle.checked = appSettings.alwaysOnTop;
+  }
 }
 
 // 時間入力の処理

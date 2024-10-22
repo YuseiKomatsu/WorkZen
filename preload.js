@@ -9,6 +9,7 @@ const electronAPI = {
     getCurrentSettings: () => ipcRenderer.invoke('get-current-settings'),
     updateIntervalSettings: (enabled, count, intervals, isAutoCalcEnabled) => 
         ipcRenderer.send('update-interval-settings', enabled, count, intervals, isAutoCalcEnabled),
+    setAlwaysOnTop: (value) => ipcRenderer.send('set-always-on-top', value),
 
     // タイマー制御
     startMainTimer: () => ipcRenderer.send('start-main-timer'),
