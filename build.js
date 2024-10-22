@@ -23,7 +23,7 @@ build({
     // Windows 向け設定
     win: {
       // ICO ファイルが必要
-      icon: 'assets/win32.ico',
+      // icon: 'assets/win32.ico',
       // ターゲット
       target: ['nsis', 'zip'],
       // Windows では 'publisherName' が必要
@@ -36,7 +36,7 @@ build({
     },
     mac: {
       // ICNS ファイルが必要
-      icon: 'assets/mac.icns',
+      // icon: 'assets/mac.icns',
       /**
        * macOS では 'category' が必須
        * https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype
@@ -53,7 +53,7 @@ build({
     },
     linux: {
       // ICO でもいけるが ICNS が一番美しい仕上がりとなる
-      icon: 'assets/linux.icns',
+      // icon: 'assets/linux.icns',
       // どのディストロでも使える AppImage を選択
       target: ['AppImage'], // or 'deb', 'snap' など
       /**

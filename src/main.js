@@ -70,7 +70,7 @@ function createMainWindow() {
       },
     });
 
-    mainWindow.loadFile("index.html");
+    mainWindow.loadFile(path.join(__dirname, 'index.html'));
     
     if (process.env.NODE_ENV === 'development') {
       mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -107,7 +107,7 @@ function createStretchWindow() {
     }
   });
 
-  stretchWindow.loadFile('stretch.html');
+  stretchWindow.loadFile(path.join(__dirname, 'stretch.html'));
 }
 
 // タイマー表示の更新

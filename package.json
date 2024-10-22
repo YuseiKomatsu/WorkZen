@@ -1,12 +1,16 @@
 {
   "name": "focus-timer",
-  "version": "3.0.3",
+  "version": "3.1.0",
   "description": "A focus timer application using Electron",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win",
-    "dev": "nodemon --exec \"electron .\" --ext js,html,css"
+    "watch": "nodemon --exec electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:win": "electron-builder --windows --publish never",
+    "dist:linux": "electron-builder --linux --publish never"
   },
   "author": {
     "name": "Yusei Komatsu",
@@ -14,40 +18,41 @@
   },
   "license": "CC BY-NC-ND",
   "devDependencies": {
-    "electron": "^21.0.0",
-    "electron-builder": "^23.0.0",
-    "nodemon": "^3.1.4"
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "nodemon": "^3.0.2"
   },
   "build": {
-    "files": [
-      "assets/**/*",
-      "main.js",
-      "preload.js",
-      "index.html",
-      "stretch.html",
-      "style.css",
-      "style-stretch.css",
-      "script.js",
-      "script-stretch.js",
-      "stretches.json"
-    ],
-    "directories": {
-      "output": "dist"
-    },
     "appId": "com.yuseikomatsu.focustimer",
     "productName": "focustimer",
+    "directories": {
+      "output": "release",
+      "buildResources": "."
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "!**/node_modules/*",
+      "!build.js",
+      "!release/*",
+      "!dist/*"
+    ],
+    "mac": {
+      "target": {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      },
+      "category": "public.app-category.productivity"
+    },
     "win": {
       "target": [
         "nsis",
         "zip"
       ]
-    },
-    "publish": {
-      "provider": "github"
     }
   },
   "dependencies": {
-    "electron-store": "^7.0.3",
+    "electron-store": "^8.1.0",
     "ionicons": "^7.4.0",
     "react-native-vector-icons": "^10.1.0"
   }

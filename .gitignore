@@ -4,3 +4,5 @@ dist/
 
 # Exclude any .exe files
 *.exe
+release/
+dist/
