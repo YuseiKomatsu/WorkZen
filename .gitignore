@@ -1,8 +1,14 @@
-# Exclude node_modules directory
+# Dependencies
 node_modules/
-dist/
 
-# Exclude any .exe files
-*.exe
-release/
+# Build outputs
 dist/
+release/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
