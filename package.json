@@ -44,11 +44,18 @@
       },
       "category": "public.app-category.productivity"
     },
-    "win": {
-      "target": [
-        "nsis",
-        "zip"
-      ]
+"win": {
+    "target": [
+      "nsis",
+      "zip"
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Focus Timer v3.1.0"
     }
   },
   "dependencies": {

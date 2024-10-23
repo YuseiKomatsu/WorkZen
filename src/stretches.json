@@ -6,7 +6,7 @@
             "鎖骨を軽く押さえ、顔を天井に向け、次に床に向けて、首をゆっくりと上下に振ります。10回程度繰り返しましょう。",
             "手を背中の後ろで組み、正面を見て、首をゆっくりと左右に振ります。10回程度繰り返しましょう。"
         ],
-        "image": "assets/images/neck_stretch.webp"
+        "image": "../assets/images/neck_stretch.webp"
     },
     {
         "title": "お尻のストレッチ",
@@ -15,7 +15,7 @@
             "息を吐きながら、ゆっくりと上体を前に倒し、15秒間保持します。",
             "左右の足を入れ替えて同様に行いましょう。"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
     },
     {
         "title": "肩回しストレッチ",
@@ -24,7 +24,7 @@
           "前回し、後ろ回しをそれぞれ10回ずつ行う",
           "肩甲骨を意識して動かす"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
       },
       {
         "title": "ストレートネック予防ストレッチ",
@@ -34,7 +34,7 @@
           "首の後ろが伸びているのを感じながら行いましょう。",
           "痛みを感じる場合は、無理せず中止してください。"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
       },
       {
         "title": "猫背改善ストレッチ",
@@ -44,7 +44,7 @@
           "肩甲骨が寄るのを感じながら行いましょう。",
           "無理のない範囲で行いましょう。"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
       },
       {
         "title": "骨盤後傾改善ストレッチ",
@@ -55,7 +55,7 @@
           "腰が伸びているのを感じながら行いましょう。",
           "痛みを感じる場合は、無理せず中止してください。"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
       },
       {
         "title": "頭痛緩和ストレッチ",
@@ -64,7 +64,7 @@
           "首をゆっくりと回したり、左右に倒したりして、首周りの筋肉をほぐします。",
           "深い呼吸を繰り返して、リラックスしましょう。"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
       },
       {
         "title": "僧帽筋ストレッチ",
@@ -74,7 +74,7 @@
             "20秒保持し、反対側も同様に行います",
             "肩こりの軽減に効果的です"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
     },
     {
         "title": "胸郭開放ストレッチ",
@@ -86,6 +86,6 @@
             "反対側も同様に行います",
             "※肩が上がらないように注意してください"
         ],
-        "image": "assets/images/Rectangle1.png"
+        "image": "../assets/images/Rectangle1.png"
     }
 ]
