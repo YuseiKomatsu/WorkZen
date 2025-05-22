@@ -1,7 +1,7 @@
 # WorkZen 🧘‍♂️
 > 仕事と健康を禅のように調和させる - 開発中プロジェクト
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/workzen.svg)](https://github.com/yourusername/workzen/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/YuseiKomatsu/workzen.svg)](https://github.com/yourusername/workzen/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [🇯🇵 日本語版](README_ja.md) | [🇺🇸 English](README.md)
